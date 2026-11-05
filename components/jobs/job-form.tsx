@@ -251,15 +251,17 @@ export function JobForm({ job }: { job?: JobDetail }) {
             </div>
             <Field id="job-department" label="Department" value={department} onChange={setDepartment} error={errors.department} />
             <Field id="job-location" label="Location" value={location} onChange={setLocation} error={errors.location} />
-            <Field id="job-salary" label="Salary" value={salary} onChange={setSalary} error={errors.salary} />
-            <div>
-              <p className="font-arial text-sm" id="job-type-label">Job type</p>
+            <div className="sm:col-span-2">
+              <Field id="job-salary" label="Salary" value={salary} onChange={setSalary} error={errors.salary} />
+            </div>
+            <div className="sm:col-span-2">
+              <span className="font-arial text-sm">Job type</span>
               <Segmented
                 label="Job type"
                 value={employmentType}
                 options={EMPLOYMENT_TYPES}
                 onChange={setEmploymentType}
-                className="mt-1.5 flex w-full [&_label]:min-h-[34px] [&_label]:px-1"
+                className="mt-1.5 flex w-full"
               />
             </div>
           </div>
@@ -326,15 +328,25 @@ function RequirementRow({
 
   return (
     <li className="border-b border-hairline-soft py-2.5">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-2">
         <Input
           aria-label={placeholder.replace("e.g. ", "Requirement, for example ")}
           placeholder={placeholder}
           value={row.label}
           autoFocus={autoFocus}
           onChange={(event) => onChange({ label: event.target.value })}
-          className="h-9 min-w-40 flex-1 basis-40"
+          className="h-9 min-w-0 flex-1"
         />
+        <button
+          type="button"
+          aria-label={`Remove ${name}`}
+          onClick={onRemove}
+          className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-silver transition-colors hover:bg-wash hover:text-platinum"
+        >
+          ×
+        </button>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
         <Segmented
           label={`Is ${name} required or preferred?`}
           value={row.isRequired ? "required" : "preferred"}
@@ -347,20 +359,12 @@ function RequirementRow({
           options={IMPORTANCE}
           onChange={(importance) => onChange({ importance })}
         />
-        <button
-          type="button"
-          aria-label={`Remove ${name}`}
-          onClick={onRemove}
-          className="flex size-8 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-silver transition-colors hover:bg-wash hover:text-platinum"
-        >
-          ×
-        </button>
+        {row.quote && (
+          <p className="min-w-0 flex-1 basis-48 border-l-2 border-citrine pl-2.5 font-mono text-xs leading-relaxed">
+            {row.quote}
+          </p>
+        )}
       </div>
-      {row.quote && (
-        <p className="mt-1.5 border-l-2 border-citrine pl-2.5 font-mono text-xs leading-relaxed">
-          {row.quote}
-        </p>
-      )}
       {row.verified === false && (
         <p className="mt-1 font-arial text-sm text-coral">
           Not found word for word in the description. Check this one.

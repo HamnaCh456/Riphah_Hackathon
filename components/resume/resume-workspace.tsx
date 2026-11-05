@@ -245,8 +245,8 @@ function ResumeEditor({ resume }: { resume: ResumeView }) {
             addLabel="Add project"
             items={data.projects}
             fields={[
-              { key: "name", label: "Project name" },
-              { key: "technologies", label: "Technologies" },
+              { key: "name", label: "Project name", wide: true },
+              { key: "technologies", label: "Technologies", wide: true },
               { key: "description", label: "Description", long: true },
             ]}
             blank={{ name: "", technologies: "", description: "" }}
@@ -257,7 +257,7 @@ function ResumeEditor({ resume }: { resume: ResumeView }) {
             addLabel="Add education"
             items={data.education}
             fields={[
-              { key: "institution", label: "School" },
+              { key: "institution", label: "School", wide: true },
               { key: "degree", label: "Degree" },
               { key: "dates", label: "Dates" },
             ]}
@@ -267,11 +267,13 @@ function ResumeEditor({ resume }: { resume: ResumeView }) {
         </div>
       </div>
 
-      <div className="sticky bottom-0 -mx-5 mt-6 flex items-center justify-end gap-3 border-t bg-abyss px-5 py-3 lg:-mx-10 lg:px-10">
-        <Button disabled={!isDirty || isSaving} size="sm" onClick={save}>
-          {isSaving ? "Saving..." : "Save corrections"}
-        </Button>
-      </div>
+      {isDirty && (
+        <div className="sticky bottom-0 z-10 -mx-5 mt-6 flex items-center justify-end gap-3 border-t bg-abyss px-5 py-3 lg:-mx-10 lg:px-10">
+          <Button disabled={isSaving} size="sm" onClick={save}>
+            {isSaving ? "Saving..." : "Save corrections"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

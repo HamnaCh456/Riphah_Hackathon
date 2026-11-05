@@ -65,9 +65,17 @@ function tidy(term: string): string {
   return term.trim().replace(/\s+/g, " ");
 }
 
-/** The name to show: "js" becomes "JavaScript". Unknown skills keep their own wording. */
+/**
+ * The name to show: "js" becomes "JavaScript". Unknown skills keep their own wording. A bracketed
+ * note is checked too, so "Kubernetes (k8s)" becomes "Kubernetes".
+ */
 export function displaySkill(term: string): string {
-  return NAME_BY_ALIAS.get(compact(term)) ?? tidy(term);
+  const withoutNote = term.replace(/\s*\([^)]*\)\s*$/, "");
+  return (
+    NAME_BY_ALIAS.get(compact(term)) ??
+    NAME_BY_ALIAS.get(compact(withoutNote)) ??
+    tidy(term)
+  );
 }
 
 /** The key to compare by: "Postgres" becomes "postgresql". */

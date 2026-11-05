@@ -29,6 +29,20 @@ describe("excerptAppearsIn", () => {
     expect(excerptAppearsIn("C++", SOURCE)).toBe(true);
   });
 
+  it("matches whole words, so one skill is not found inside another", () => {
+    expect(excerptAppearsIn("Go", "Built APIs in Django")).toBe(false);
+    expect(excerptAppearsIn("Java", "Wrote JavaScript")).toBe(false);
+    expect(excerptAppearsIn("Django", "Built APIs in Django.")).toBe(true);
+  });
+
+  it("finds contact details despite their punctuation", () => {
+    const contact = "Phone: +92 300 555 0101, sara.ahmed@example.com";
+    expect(excerptAppearsIn("+92 300 555 0101", contact)).toBe(true);
+    expect(excerptAppearsIn("92-300-555-0101", contact)).toBe(true);
+    expect(excerptAppearsIn("sara.ahmed@example.com", contact)).toBe(true);
+    expect(excerptAppearsIn("sara@example.com", contact)).toBe(false);
+  });
+
   it("rejects empty or punctuation-only quotes", () => {
     expect(excerptAppearsIn("", SOURCE)).toBe(false);
     expect(excerptAppearsIn(null, SOURCE)).toBe(false);

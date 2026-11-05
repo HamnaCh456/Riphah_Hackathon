@@ -13,7 +13,14 @@ type Provenance = {
   edited: boolean;
 };
 
-type Field<T> = { key: keyof T & string; label: string; long?: boolean };
+type Field<T> = {
+  key: keyof T & string;
+  label: string;
+  /** Takes the full row. */
+  wide?: boolean;
+  /** A multi-line box. */
+  long?: boolean;
+};
 
 /** One editable list: experience, projects or education. */
 export function ResumeSection<T extends Provenance>({
@@ -55,7 +62,7 @@ export function ResumeSection<T extends Provenance>({
                       ),
                     );
                   return (
-                    <div key={field.key} className={field.long ? "sm:col-span-2" : undefined}>
+                    <div key={field.key} className={field.long || field.wide ? "sm:col-span-2" : undefined}>
                       <Label htmlFor={id} className="text-xs">{field.label}</Label>
                       {field.long ? (
                         <textarea

@@ -17,6 +17,8 @@ describe("normalizeSkill", () => {
     ["py", "python"],
     ["Python3", "python"],
     ["TS", "typescript"],
+    ["Kubernetes (k8s)", "kubernetes"],
+    ["JS (ES6)", "javascript"],
   ])("maps %s to %s", (input, expected) => {
     expect(normalizeSkill(input)).toBe(expected);
   });
