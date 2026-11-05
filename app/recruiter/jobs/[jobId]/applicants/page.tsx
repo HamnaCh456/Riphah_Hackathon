@@ -6,6 +6,7 @@ import { AutoRefresh } from '@/components/matching/AutoRefresh';
 import { FormSelect } from '@/components/matching/FormSelect';
 import { STATUS_LABELS } from '@/components/matching/labels';
 import { ScoreMeter } from '@/components/matching/ScoreMeter';
+import { TalentPoolPanel } from '@/components/talent/TalentPoolPanel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { requireRecruiter } from '@/lib/auth/guards';
@@ -99,10 +100,17 @@ export default async function ApplicantsPage({
           {rows.length === 0 ? (
             <p className="mt-6 border-t pt-4 text-sm">No applicants match these filters.</p>
           ) : (
-            <ApplicantsTable jobId={jobId} rows={rows} />
+            <>
+              <form id="compare-form" action={`/recruiter/jobs/${jobId}/compare`} method="get" className="mt-5 flex flex-wrap items-center gap-3">
+                <Button type="submit" variant="ghost" size="sm">Compare selected</Button>
+                <span className="text-sm">Tick 2 to 4 assessed applicants.</span>
+              </form>
+              <ApplicantsTable jobId={jobId} rows={rows} />
+            </>
           )}
         </>
       )}
+      <TalentPoolPanel jobId={jobId} />
     </AppShell>
   );
 }
@@ -124,6 +132,7 @@ function ApplicantsTable({ jobId, rows }: { jobId: string; rows: ApplicantRow[] 
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-hairline-soft text-left font-mono text-[10px] uppercase tracking-[.16em]">
+            <th scope="col" className="w-10 py-2 pr-2 font-normal"><span className="sr-only">Compare</span></th>
             <th scope="col" className="py-2 pr-4 font-normal">Applicant</th>
             <th scope="col" className="py-2 pr-4 font-normal">Score</th>
             <th scope="col" className="py-2 pr-4 font-normal max-md:hidden">AI guidance</th>
@@ -136,6 +145,19 @@ function ApplicantsTable({ jobId, rows }: { jobId: string; rows: ApplicantRow[] 
             const href = `/recruiter/jobs/${jobId}/applicants/${r.applicationId}`;
             return (
               <tr key={r.applicationId} className="relative border-b border-hairline-soft align-top transition-colors hover:bg-wash">
+                <td className="py-1 pr-2">
+                  {/* Sits above the row-wide link, and belongs to the compare form above the table. */}
+                  <label className="relative z-10 flex min-h-11 min-w-8 cursor-pointer items-center">
+                    <span className="sr-only">Compare {r.name}</span>
+                    <input
+                      type="checkbox"
+                      name="a"
+                      value={r.applicationId}
+                      form="compare-form"
+                      disabled={r.assessmentState !== 'complete'}
+                    />
+                  </label>
+                </td>
                 <td className="py-3 pr-4">
                   <Link href={href} className="text-platinum underline-offset-4 after:absolute after:inset-0 hover:underline">
                     {r.name}

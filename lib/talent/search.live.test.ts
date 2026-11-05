@@ -87,7 +87,7 @@ describe.runIf(LIVE)("talent search with real AI and data", () => {
 
   beforeAll(async () => {
     loadEnvFile();
-    admin = createClient(process.env["SUPABASE-URL"]!, process.env["ANON-API-KEY"]!, {
+    admin = createClient(process.env.SUPABASE_URL!, process.env.ANON_API_KEY!, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
     search = await import("./search");

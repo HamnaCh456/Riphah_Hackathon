@@ -5,11 +5,27 @@ import { z } from "zod";
 import { requireRecruiter } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
 import type { RankedCandidate } from "@/lib/talent/rank";
-import { searchTalent } from "@/lib/talent/search";
+import { discoverTalentPool, searchTalent } from "@/lib/talent/search";
 
 export type TalentResult =
   | { ok: true; results: RankedCandidate[] }
   | { ok: false; message: string };
+
+export async function talentPoolAction(jobId: string): Promise<TalentResult> {
+  const profile = await requireRecruiter();
+  const parsed = z.string().uuid().safeParse(jobId);
+  if (!parsed.success) return { ok: false, message: "This job was not found." };
+  try {
+    const { results } = await discoverTalentPool(db(), profile.id, parsed.data);
+    return { ok: true, results };
+  } catch (error) {
+    console.error("Talent pool search failed", error);
+    return {
+      ok: false,
+      message: "Past applicants could not be loaded. Please try again.",
+    };
+  }
+}
 
 export async function searchAction(query: string): Promise<TalentResult> {
   const profile = await requireRecruiter();

@@ -16,6 +16,7 @@ const LINKS: Record<Role, { href: string; label: string }[]> = {
   candidate: [
     { href: "/candidate", label: "Dashboard" },
     { href: "/candidate/resume", label: "My resume" },
+    { href: "/candidate/recommendations", label: "Jobs for you" },
   ],
 };
 

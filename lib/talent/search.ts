@@ -14,6 +14,7 @@ import { rankCandidates, type RankedCandidate } from "./rank";
 import {
   buildFacetHits,
   dropPersonalFacets,
+  isPastApplicant,
   type SearchableChunk,
 } from "./search-hits";
 
@@ -73,12 +74,23 @@ export async function parseQuery(query: string): Promise<string[]> {
 async function loadSearchableChunks(
   db: SupabaseClient,
   recruiterId: string,
+  pool?: { excludeJobId: string },
 ): Promise<SearchableChunk[]> {
   const since = new Date(Date.now() - RETENTION_DAYS * 86_400_000).toISOString();
+  // For the talent pool: people who already applied to this job aren't "past applicants".
+  let alreadyApplied = new Set<string>();
+  if (pool) {
+    const { data, error } = await db
+      .from("applications")
+      .select("candidate_id")
+      .eq("job_id", pool.excludeJobId);
+    if (error) throw error;
+    alreadyApplied = new Set(data.map((row) => row.candidate_id as string));
+  }
   const { data: applications, error } = await db
     .from("applications")
     .select(
-      "id, job_id, candidate_id, resume_id, created_at, job:jobs!inner(recruiter_id), person:profiles(full_name)",
+      "id, job_id, candidate_id, resume_id, status, created_at, job:jobs!inner(recruiter_id), person:profiles(full_name)",
     )
     .eq("job.recruiter_id", recruiterId)
     .gt("created_at", since)
@@ -89,10 +101,15 @@ async function loadSearchableChunks(
   // Newest first, so a resume used twice links to its latest application.
   const byResume = new Map<string, (typeof applications)[number]>();
   for (const application of applications) {
+    if (pool && !isPastApplicant(application.status, application.candidate_id, alreadyApplied)) {
+      continue;
+    }
     if (!byResume.has(application.resume_id)) {
       byResume.set(application.resume_id, application);
     }
   }
+
+  if (byResume.size === 0) return [];
 
   const { data: chunks, error: chunkError } = await db
     .from("resume_chunks")
@@ -123,12 +140,12 @@ export async function searchWithFacets(
   db: SupabaseClient,
   recruiterId: string,
   facets: string[],
+  pool?: { excludeJobId: string },
 ) {
   if (facets.length === 0) return [];
-  const [vectors, chunks] = await Promise.all([
-    embedTexts(facets, "RETRIEVAL_QUERY"),
-    loadSearchableChunks(db, recruiterId),
-  ]);
+  const chunks = await loadSearchableChunks(db, recruiterId, pool);
+  if (chunks.length === 0) return [];
+  const vectors = await embedTexts(facets, "RETRIEVAL_QUERY");
   const ranked = rankCandidates(
     buildFacetHits(facets, vectors, chunks),
     SEARCH_MIN_SIMILARITY,
@@ -155,6 +172,32 @@ async function confirmEvidence(
     console.error("Evidence check failed, using the stricter bar", error);
     return applyStrictBar(ranked, SEARCH_STRICT_SIMILARITY);
   }
+}
+
+/** Read-only: it suggests people for a recruiter to look at. It contacts and changes nothing. */
+export async function discoverTalentPool(
+  db: SupabaseClient,
+  recruiterId: string,
+  jobId: string,
+) {
+  const { data: job, error: jobError } = await db
+    .from("jobs")
+    .select("recruiter_id")
+    .eq("id", jobId)
+    .maybeSingle();
+  if (jobError) throw jobError;
+  if (job?.recruiter_id !== recruiterId) throw new Error("Job not found");
+
+  const { data: rows, error } = await db
+    .from("job_requirements")
+    .select("label")
+    .eq("job_id", jobId);
+  if (error) throw error;
+  const facets = [...new Set(rows.map((r) => r.label as string))].slice(0, MAX_FACETS);
+  return {
+    facets,
+    results: await searchWithFacets(db, recruiterId, facets, { excludeJobId: jobId }),
+  };
 }
 
 export async function searchTalent(

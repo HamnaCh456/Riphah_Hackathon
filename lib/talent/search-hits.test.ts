@@ -3,8 +3,18 @@ import { expect, it } from "vitest";
 import {
   buildFacetHits,
   dropPersonalFacets,
+  isPastApplicant,
   type SearchableChunk,
 } from "./search-hits";
+
+it("includes only reviewed people who haven't applied to this job", () => {
+  const applied = new Set(["already"]);
+  expect(isPastApplicant("rejected", "p1", applied)).toBe(true);
+  expect(isPastApplicant("shortlisted", "p1", applied)).toBe(true);
+  expect(isPastApplicant("submitted", "p1", applied)).toBe(false);
+  expect(isPastApplicant("assessed", "p1", applied)).toBe(false);
+  expect(isPastApplicant("rejected", "already", applied)).toBe(false);
+});
 
 it("drops personal needs and keeps job-related ones", () => {
   expect(
