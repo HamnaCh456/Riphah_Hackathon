@@ -40,7 +40,7 @@ The AI can't infer confirmed absence from silence.
 - Status changes go through one database function that checks the move and writes an append-only audit row. A direct update is refused, even with the secret key.
 - Recruiters can override any AI result or extracted skill, with a written reason. The original result is kept.
 - Name, contact details and similar personal details are removed before resume text reaches the AI for scoring.
-- The fairness check on each applicant page changes protected attributes in the input and shows whether the assessment input changes.
+- The fairness check on each applicant page scores the resume again with personal details changed (name, gender, age, nationality, religion, marital status) and shows whether the result moves. The saved score stays as it was.
 - Candidates only see a simplified status, through database functions. They never see scores, gaps, notes or AI results.
 
 ## Architecture
@@ -81,7 +81,7 @@ Browser
 
 ## Checks
 
-`npm test`, `npm run typecheck`, `npm run lint` and `npm run build`. GitHub Actions runs them on every push.
+`npm test`, `npm run typecheck` and `npm run build`. GitHub Actions runs them on every push.
 
 Unit tests cover scoring, quote verification, redaction, skill normalization, filters, scheduling conflicts, analytics and access rules.
 
