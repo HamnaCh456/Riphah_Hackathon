@@ -14,6 +14,7 @@ export default {
         silver: "var(--color-silver-mist)",
         lavender: "var(--color-lavender-phosphor)",
         coral: "var(--color-coral)",
+        citrine: "var(--color-citrine)",
         hairline: "var(--hairline)",
         "hairline-soft": "var(--hairline-soft)",
         "hairline-strong": "var(--hairline-strong)",

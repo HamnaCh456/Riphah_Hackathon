@@ -12,6 +12,12 @@
   --color-silver-mist: #bbc7c6;
   --color-lavender-phosphor: #fde9ff;
   --color-coral: #ff7a5a;
+  --color-citrine: #f2e85c;
+  --viz-cited: #26a894;
+  --font-arial: Arial, Helvetica, system-ui;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-32: 32px;
 
   --gradient-aurora: linear-gradient(90deg, #8ff5f0, #ffffff, #fbd3ff);
 

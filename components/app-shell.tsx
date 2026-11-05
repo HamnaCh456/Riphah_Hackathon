@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LogoutButton } from "@/components/logout-button";
+import { ShellNav } from "@/components/shell-nav";
 import { roleHome } from "@/lib/auth/access";
 import type { Profile } from "@/lib/auth/guards";
 
@@ -14,13 +15,14 @@ export function AppShell({
 }) {
   return (
     <div className="flex min-h-svh flex-col lg:flex-row">
-      <aside className="flex items-center justify-between gap-4 border-b bg-deep px-5 py-3 lg:sticky lg:top-0 lg:h-svh lg:w-60 lg:flex-col lg:items-stretch lg:border-b-0 lg:border-r lg:p-5">
+      <aside className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b bg-deep px-5 py-3 lg:sticky lg:top-0 lg:h-svh lg:w-60 lg:flex-col lg:flex-nowrap lg:items-stretch lg:border-b-0 lg:border-r lg:p-5">
         <Link
           href={roleHome(profile.role)}
           className="text-[17px] font-medium tracking-[-.02em] text-platinum transition-colors hover:text-silver"
         >
           Talent Intelligence
         </Link>
+        <ShellNav role={profile.role} />
         <div className="flex min-w-0 items-center gap-3 lg:flex-col lg:items-stretch">
           <p className="hidden min-w-0 truncate font-arial text-sm sm:block">
             {profile.fullName}
