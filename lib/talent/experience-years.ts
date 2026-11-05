@@ -23,8 +23,7 @@ function toMonths(
 /** The resume lines holding the dates behind careerYears, word for word. */
 export function datedLines(experienceTexts: string[]): string[] {
   return experienceTexts
-    .flatMap((text) => text.split(/?
-/))
+    .flatMap((text) => text.split(/\r?\n/))
     .filter((line) => line.search(RANGE) >= 0)
     .map((line) => line.trim());
 }
