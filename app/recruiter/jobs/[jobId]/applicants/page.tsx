@@ -2,6 +2,7 @@ import Form from 'next/form';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { JobStatusButton } from '@/components/jobs/job-status-button';
 import { AutoRefresh } from '@/components/matching/AutoRefresh';
 import { STATUS_LABELS, stageTone } from '@/components/matching/labels';
 import { ScoreRing } from '@/components/matching/ScoreRing';
@@ -62,12 +63,16 @@ export default async function ApplicantsPage({
           <span className="text-sm tabular-nums">
             {rows.length === all.length ? `${all.length} applicant${all.length === 1 ? '' : 's'}` : `${rows.length} of ${all.length} applicants`}
           </span>
+          {job.status === 'closed' && <Badge tone="neutral">Closed</Badge>}
         </div>
-        {rows.length > 0 && (
-          <Form id="compare-form" action={`/recruiter/jobs/${jobId}/compare`}>
-            <CompareButton key={rows.map((r) => r.applicationId).join()} />
-          </Form>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <JobStatusButton jobId={jobId} status={job.status} />
+          {rows.length > 0 && (
+            <Form id="compare-form" action={`/recruiter/jobs/${jobId}/compare`}>
+              <CompareButton key={rows.map((r) => r.applicationId).join()} />
+            </Form>
+          )}
+        </div>
       </div>
 
       {all.length === 0 ? (

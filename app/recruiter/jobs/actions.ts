@@ -175,12 +175,13 @@ export async function setJobStatus(
     console.error("Job status update failed", error);
     return {
       ok: false,
-      error: `The job could not be ${status === "open" ? "reopened" : "closed"}. Try again.`,
+      error: `Applications could not be ${status === "open" ? "reopened" : "closed"}. Try again.`,
     };
   }
 
   revalidatePath("/recruiter/jobs");
   revalidatePath(`/recruiter/jobs/${jobId}/edit`);
+  revalidatePath(`/recruiter/jobs/${jobId}/applicants`);
   updateTag(RECOMMENDATIONS_TAG);
   return { ok: true };
 }

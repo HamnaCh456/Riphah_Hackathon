@@ -1,16 +1,13 @@
 import Link from "next/link";
 
-import { ActionForm } from "@/components/matching/ActionForm";
 import { ApplyButton } from "@/components/pipeline/ApplyButton";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { requireCandidate } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
 import type { Recommendations } from "@/lib/talent/recommend";
 import { cachedRecommendations } from "@/lib/talent/recommend-cache";
 import { plainSnippet } from "@/lib/talent/recommend-logic";
 
-import { savePreferencesAction } from "./actions";
+import { ChoicesDialog } from "./ChoicesDialog";
 
 export const metadata = { title: "Jobs for you" };
 export const maxDuration = 60; // Applying runs the assessment after the response.
@@ -61,6 +58,10 @@ export default async function RecommendationsPage() {
           Based on the skills your resume supports, your projects and your
           interests. You decide what to apply for.
         </p>
+        <ChoicesDialog
+          interests={interests}
+          consent={preferences?.talent_pool_consent ?? false}
+        />
 
         {!data && (
           <p role="alert" className="mt-6 text-sm text-danger">
@@ -93,39 +94,6 @@ export default async function RecommendationsPage() {
             ))}
           </ul>
         )}
-
-        <section aria-label="Your choices" className="card mt-5 p-5">
-          <h2 className="text-lg">Your choices</h2>
-          <ActionForm action={savePreferencesAction} className="mt-3 space-y-3">
-            <div>
-              <label htmlFor="interests" className="mb-1 block font-arial text-sm">
-                What kind of work interests you? Separate items with commas.
-              </label>
-              <Input
-                id="interests"
-                name="interests"
-                maxLength={300}
-                defaultValue={interests.join(", ")}
-                placeholder="fintech, backend services"
-              />
-            </div>
-            <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                name="consent"
-                defaultChecked={preferences?.talent_pool_consent ?? false}
-              />
-              Let recruiters I applied to consider my resume for their other jobs
-            </label>
-            <p className="text-sm">
-              If you agree, a recruiter can find your resume for 180 days after you
-              apply. You can change this at any time.
-            </p>
-            <Button variant="ghost" size="sm">
-              Save choices
-            </Button>
-          </ActionForm>
-        </section>
       </div>
     </>
   );

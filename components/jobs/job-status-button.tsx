@@ -33,12 +33,12 @@ export function JobStatusButton({
             toast(result.error ?? "Something went wrong.", { tone: "error" });
             return;
           }
-          toast(closing ? "Job closed" : "Job reopened");
+          toast(closing ? "Applications closed" : "Applications reopened");
           router.refresh();
         })
       }
     >
-      {closing ? "Close" : "Reopen"}
+      {closing ? "Close applications" : "Reopen applications"}
     </Button>
   );
 }
