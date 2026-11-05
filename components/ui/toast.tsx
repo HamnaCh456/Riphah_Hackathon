@@ -10,8 +10,9 @@ import {
 } from "react";
 
 type Tone = "default" | "error";
-type Toast = { id: number; message: string; tone: Tone };
-type ShowToast = (message: string, options?: { tone?: Tone }) => void;
+type ToastAction = { label: string; onClick: () => void };
+type Toast = { id: number; message: string; tone: Tone; action?: ToastAction };
+type ShowToast = (message: string, options?: { tone?: Tone; action?: ToastAction }) => void;
 
 const ToastContext = createContext<ShowToast | null>(null);
 
@@ -23,7 +24,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const id = nextId.current++;
     setToasts((current) => [
       ...current,
-      { id, message, tone: options?.tone ?? "default" },
+      { id, message, tone: options?.tone ?? "default", action: options?.action },
     ]);
     setTimeout(() => {
       setToasts((current) => current.filter((t) => t.id !== id));
@@ -39,16 +40,28 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         className="pointer-events-none fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-40px)] flex-col gap-2 sm:max-w-sm"
       >
         {toasts.map((t) => (
-          <p
+          <div
             key={t.id}
-            className={`rounded-small border bg-surface px-4 py-3 font-arial text-sm shadow-raised animate-in fade-in-0 slide-in-from-bottom-2 duration-200 ${
+            className={`pointer-events-auto flex items-center justify-between gap-4 rounded-small border bg-surface px-4 py-3 font-arial text-sm shadow-raised animate-in fade-in-0 slide-in-from-bottom-2 duration-200 ${
               t.tone === "error"
                 ? "border-l-4 border-l-danger text-danger"
                 : "border-l-4 border-l-teal text-ink"
             }`}
           >
-            {t.message}
-          </p>
+            <p className="min-w-0">{t.message}</p>
+            {t.action && (
+              <button
+                type="button"
+                className="textlink shrink-0 cursor-pointer"
+                onClick={() => {
+                  t.action?.onClick();
+                  setToasts((current) => current.filter((other) => other.id !== t.id));
+                }}
+              >
+                {t.action.label}
+              </button>
+            )}
+          </div>
         ))}
       </div>
     </ToastContext.Provider>

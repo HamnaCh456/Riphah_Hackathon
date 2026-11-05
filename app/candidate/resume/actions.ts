@@ -8,7 +8,8 @@ import { requireCandidate } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
 import { RESUME_FAILURE_MESSAGES } from "@/lib/resume/file-check";
 import { applyCorrections, resumeDataSchema } from "@/lib/resume/schema";
-import { parseStoredResume, reassessApplications } from "@/lib/resume/service";
+import type { ResumeData } from "@/lib/resume/schema";
+import { parseStoredResume, reassessApplications, type ResumeSkill } from "@/lib/resume/service";
 import { displaySkill, normalizeSkill } from "@/lib/skills/normalize";
 import { recommendationsTagFor } from "@/lib/talent/recommend-cache";
 
@@ -23,10 +24,12 @@ const correctionsSchema = z.object({
 
 export type CorrectionInput = z.input<typeof correctionsSchema>;
 type ActionResult = { ok: true } | { ok: false; error: string };
+/** What the server worked out, so the page can show it without reloading the editor. */
+type SaveResult = { ok: true; data: ResumeData; added: ResumeSkill[] } | { ok: false; error: string };
 
 const SAVE_FAILED = "Your corrections could not be saved. Try again.";
 
-export async function saveResumeCorrections(input: unknown): Promise<ActionResult> {
+export async function saveResumeCorrections(input: unknown): Promise<SaveResult> {
   const candidate = await requireCandidate();
 
   const parsed = correctionsSchema.safeParse(input);
@@ -93,7 +96,7 @@ export async function saveResumeCorrections(input: unknown): Promise<ActionResul
           source: "candidate",
         })),
         { onConflict: "resume_id,normalized_name" },
-      )
+      ).select("id, name, raw_term, excerpt, verified, source")
     : null;
 
   const failure = results.find((r) => r?.error)?.error ?? newSkillsResult?.error;
@@ -104,7 +107,18 @@ export async function saveResumeCorrections(input: unknown): Promise<ActionResul
 
   updateTag(recommendationsTagFor(candidate.id));
   revalidatePath(PAGE);
-  return { ok: true };
+  return {
+    ok: true,
+    data: merged,
+    added: (newSkillsResult?.data ?? []).map((skill) => ({
+      id: skill.id,
+      name: skill.name,
+      rawTerm: skill.raw_term,
+      excerpt: skill.excerpt,
+      verified: skill.verified,
+      source: skill.source,
+    })),
+  };
 }
 
 /** Runs extraction again on text already stored, after the AI service failed. */

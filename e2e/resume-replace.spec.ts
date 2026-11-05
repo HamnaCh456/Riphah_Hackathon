@@ -14,6 +14,7 @@ test('a new resume replaces the old skills for the candidate and the recruiter',
   const { applicationId, jobId, candidateId, resumeId } = await seedApplication({ status: 'in_review', useLoginCandidate: true });
   await loginAs(page, 'candidate');
   await page.goto('/candidate/resume');
+  await page.getByRole('button', { name: /^Skills/ }).click();
   await expect(page.getByLabel('Remove Django')).toBeVisible();
 
   // Zara's resume has no Django, so a leftover Django row can only come from the old resume.

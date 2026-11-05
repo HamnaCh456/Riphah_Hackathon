@@ -13,9 +13,10 @@ export default async function ResumePage() {
 
   return (
     <>
-      {/* The key resets unsaved edits when a different or newly saved resume loads. */}
+      {/* The key resets the editor for a different resume. It must not change on a save,
+          because auto-save would then reload the editor while the candidate is typing. */}
       <ResumeWorkspace
-        key={`${resume?.id}-${resume?.correctedAt}`}
+        key={resume?.id}
         resume={resume}
         retryable={retryable}
       />
