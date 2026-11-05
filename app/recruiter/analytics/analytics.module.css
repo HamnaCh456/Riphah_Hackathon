@@ -6,8 +6,9 @@
 .section { margin: 0 0 var(--spacing-12); font: 500 12px var(--font-matter); letter-spacing: .12em; text-transform: uppercase; color: var(--color-silver-mist); }
 
 /* The 1px gap is the rule: the container paints through it (DESIGN.md §5.6). */
-.tiles { list-style: none; margin: 0 0 var(--spacing-32); padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--hairline); border-block: 1px solid var(--hairline); }
+.tiles { list-style: none; margin: 0 0 var(--spacing-32); padding: 0; display: flex; flex-wrap: wrap; gap: 1px; background: var(--hairline); border-block: 1px solid var(--hairline); }
 .tiles li { background: var(--color-liquid-abyss); }
+.tiles li { flex: 1 1 150px; }
 .tile { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: var(--spacing-16); color: inherit; text-decoration: none; }
 .tile:hover { background: var(--wash); }
 .tile:hover .tileLabel { color: var(--color-platinum); }
@@ -34,11 +35,9 @@
 .breadcrumb a:hover { color: var(--color-platinum); }
 
 @media (max-width: 1240px) {
-  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 680px) {
-  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .charts { grid-template-columns: minmax(0, 1fr); }
   .row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }

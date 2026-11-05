@@ -140,7 +140,7 @@ describe("splitResults", () => {
     const { matches } = splitResults(years, [{ person: applicant, verdicts: [] }]);
     expect(matches[0].evidence[0]).toMatchObject({
       note: "About 7 years of work listed",
-      excerpt: senior.content,
+      excerpt: "Backend Engineer, 2018 - 2025",
     });
   });
 });

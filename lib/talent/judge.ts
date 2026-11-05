@@ -2,7 +2,7 @@ import { excerptAppearsIn } from "@/lib/ai/verify-excerpt";
 import { redact } from "@/lib/matching/redact";
 import { cosineSimilarity } from "@/lib/trust/cosine";
 
-import { careerYears } from "./experience-years";
+import { careerYears, datedLines } from "./experience-years";
 import type { RankedCandidate } from "./rank";
 import type { SearchableChunk } from "./search-hits";
 
@@ -134,11 +134,13 @@ function toRanked(needs: SearchNeed[], person: Applicant, verdicts: NeedVerdict[
 
   needs.forEach((need, i) => {
     if (need.overall && person.careerYears !== null) {
-      const dated = person.chunks.find((c) => c.section === "experience");
-      if (dated) {
+      const dated = datedLines(
+        person.chunks.filter((c) => c.section === "experience").map((c) => c.content),
+      );
+      if (dated.length > 0) {
         evidence.push({
           facet: need.need,
-          excerpt: dated.content,
+          excerpt: dated.join("\n"),
           similarity: 1,
           note: `About ${roundYears(person.careerYears)} years of work listed`,
         });

@@ -20,6 +20,15 @@ function toMonths(
   return Number(year) * MONTHS_PER_YEAR + month;
 }
 
+/** The resume lines holding the dates behind careerYears, word for word. */
+export function datedLines(experienceTexts: string[]): string[] {
+  return experienceTexts
+    .flatMap((text) => text.split(/?
+/))
+    .filter((line) => line.search(RANGE) >= 0)
+    .map((line) => line.trim());
+}
+
 /**
  * Years of work from the date ranges in a resume's experience section, counting overlapping jobs
  * once. Normal code does this so the same dates always give the same answer. Null means no dates

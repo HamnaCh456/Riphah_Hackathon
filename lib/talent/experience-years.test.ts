@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { careerYears } from "./experience-years";
+import { careerYears, datedLines } from "./experience-years";
 
 const NOW = new Date("2026-11-05T00:00:00Z");
+
+describe("datedLines", () => {
+  it("keeps only the lines that hold job dates", () => {
+    expect(
+      datedLines(["Engineer, Acme, 2021 - 2025\nBuilt APIs in 2022\n  Intern, Beta, 2020 to 2021"]),
+    ).toEqual(["Engineer, Acme, 2021 - 2025", "Intern, Beta, 2020 to 2021"]);
+  });
+});
 
 describe("careerYears", () => {
   it("adds up separate jobs given in years", () => {
