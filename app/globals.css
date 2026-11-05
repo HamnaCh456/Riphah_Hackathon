@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens: DESIGN.md section 3. Add a token here before using a new value. */
+:root {
+  --color-liquid-abyss: #012624;
+  --color-liquid-deep: #011d1c;
+  --color-liquid-kelp: #003734;
+  --color-platinum: #ffffff;
+  --color-liquid-mist: #edfffe;
+  --color-silver-mist: #bbc7c6;
+  --color-lavender-phosphor: #fde9ff;
+  --color-coral: #ff7a5a;
+
+  --gradient-aurora: linear-gradient(90deg, #8ff5f0, #ffffff, #fbd3ff);
+
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-soft: rgba(255, 255, 255, 0.06);
+  --hairline-strong: rgba(255, 255, 255, 0.28);
+  --wash: rgba(237, 255, 254, 0.03);
+
+  --radius-small: 6px;
+
+  --scroll-thumb: rgba(237, 255, 254, 0.16);
+  --scroll-thumb-hover: rgba(237, 255, 254, 0.3);
+
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: var(--hairline);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) transparent;
+  }
+
+  body {
+    background: var(--color-liquid-abyss);
+    color: var(--color-silver-mist);
+    font-family: var(--font-matter), ui-sans-serif, system-ui;
+    line-height: 1.4;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-platinum);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-lavender-phosphor);
+    outline-offset: 3px;
+  }
+
+  /* Keeps browser autofill on the dark field colour. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-liquid-mist);
+    box-shadow: inset 0 0 0 100px var(--color-liquid-deep);
+    caret-color: var(--color-liquid-mist);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--scroll-thumb);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scroll-thumb-hover);
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
+@layer components {
+  .bg-aurora {
+    background-image: var(--gradient-aurora);
+  }
+  .textlink {
+    color: var(--color-silver-mist);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--hairline-strong);
+    transition: color 0.2s;
+  }
+  .textlink:hover {
+    color: var(--color-platinum);
+    text-decoration-color: currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
