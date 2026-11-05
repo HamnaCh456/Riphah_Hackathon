@@ -3,6 +3,9 @@ import Link from 'next/link';
 import { AppShell } from '@/components/app-shell';
 import { formatDate } from '@/components/matching/labels';
 import { requireCandidate } from '@/lib/auth/guards';
+import { getCandidateInterviews, getCandidateNotifications } from '@/lib/interviews/candidate-view';
+import { INTERVIEW_TYPES } from '@/lib/interviews/schemas';
+import { formatDay, formatTimeRange } from '@/lib/interviews/time';
 import { PUBLIC_STATUS } from '@/lib/pipeline/status';
 import { createClient } from '@/lib/supabase/server';
 
@@ -29,6 +32,11 @@ export default async function MyApplicationsPage() {
     });
     return { ...application, timeline: (timeline.data ?? []) as TimelineStep[] };
   }));
+
+  const [interviews, notifications] = await Promise.all([
+    getCandidateInterviews(profile.id),
+    getCandidateNotifications(profile.id),
+  ]);
 
   return (
     <AppShell profile={profile}>
@@ -58,10 +66,31 @@ export default async function MyApplicationsPage() {
                   </li>
                 ))}
               </ol>
+              {interviews.filter((i) => i.application_id === application.application_id).map((i) => (
+                <p key={i.starts_at} className="mt-2 text-mist">
+                  {INTERVIEW_TYPES.find((t) => t.value === i.type)?.label} interview,{' '}
+                  <span className="tabular-nums">{formatDay(i.starts_at)}, {formatTimeRange(i.starts_at, i.ends_at)}</span>
+                  {i.status === 'cancelled' ? ' (cancelled)' : ''}
+                </p>
+              ))}
             </section>
           );
         })}
       </div>
+
+      {notifications.length > 0 && (
+        <section aria-label="Notifications" className="mt-6 max-w-3xl border-t pt-4 text-sm">
+          <h2 className="text-[15px]">Notifications</h2>
+          <p className="mt-1">Simulated in this demo. No email was sent.</p>
+          <ul className="mt-2">
+            {notifications.map((n) => (
+              <li key={n.id} className="border-t border-hairline-soft py-2">
+                <span className="text-mist">{n.title}.</span> {n.body}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </AppShell>
   );
 }
