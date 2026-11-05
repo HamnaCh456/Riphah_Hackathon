@@ -12,6 +12,7 @@ import { normalizeForMatch, verifyRequirement } from './verify';
 export const TOP_K = 5;
 const ASSESS_MODEL = 'gemini-2.5-flash';
 const RUNNING_EXPIRES_MS = 120_000;
+const AI_RETRY_DELAYS_MS = [3_000, 8_000];
 const UNIQUE_VIOLATION = '23505';
 const SEARCHABLE: Section[] = ['summary', 'skills', 'experience', 'project', 'education', 'certification', 'other'];
 
@@ -85,6 +86,22 @@ const messageOf = (error: unknown): string => {
   return String(error);
 };
 
+// Gemini returns 503 during demand spikes that usually pass in seconds, so wait before trying again.
+async function askForAssessment(prompt: string) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return assessmentOutput.parse(await generateJson({
+        system: ASSESSMENT_SYSTEM_PROMPT,
+        prompt,
+        responseSchema: assessmentResponseSchema,
+      }));
+    } catch (error) {
+      if (attempt >= AI_RETRY_DELAYS_MS.length) throw error;
+      await new Promise((done) => setTimeout(done, AI_RETRY_DELAYS_MS[attempt]));
+    }
+  }
+}
+
 async function assess(applicationId: string, options: { retry?: boolean }): Promise<RunResult> {
   const admin = db();
 
@@ -150,11 +167,7 @@ async function assess(applicationId: string, options: { retry?: boolean }): Prom
       chunks: await retrieve(admin, resume.id, requirement, vectors[i]),
     })));
 
-    const output = assessmentOutput.parse(await generateJson({
-      system: ASSESSMENT_SYSTEM_PROMPT,
-      prompt: buildPrompt(job.title, items),
-      responseSchema: assessmentResponseSchema,
-    }));
+    const output = await askForAssessment(buildPrompt(job.title, items));
     const assessed = items.map(({ requirement, chunks }) =>
       verifyRequirement(requirement, output.results.find((r) => r.key === requirement.key), chunks));
     const { score, ceiling } = computeScore(assessed);
