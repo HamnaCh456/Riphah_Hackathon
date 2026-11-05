@@ -60,6 +60,9 @@ export default async function ApplicantsPage({
         <span className="text-sm tabular-nums">
           {rows.length === all.length ? `${all.length} applicant${all.length === 1 ? '' : 's'}` : `${rows.length} of ${all.length} applicants`}
         </span>
+        <Link href={`/recruiter/jobs/${jobId}/questions`} className="textlink font-arial text-[13px]">
+          Interview questions
+        </Link>
       </div>
 
       {all.length === 0 ? (

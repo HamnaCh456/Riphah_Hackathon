@@ -50,7 +50,7 @@ For each candidate, in the private window:
 ## 5. Interview questions and scheduling
 
 1. On Hira's page, click Interview questions, then Generate questions.
-2. **Show:** some questions mention her real projects, such as Clinic Booking API.
+2. **Show:** the questions cover the job's skills at three levels, and every applicant for this job gets the same set.
 3. Open `/recruiter/applications/<application id>/interview` and schedule an interview. If no interviewer is saved yet, choose Add new interviewer and type a name.
 4. **Show:** it appears in `/recruiter/interviews`.
 

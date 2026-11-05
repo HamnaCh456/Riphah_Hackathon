@@ -1,4 +1,4 @@
-/* app/recruiter/applications/[id]/questions/questions.module.css */
+/* app/recruiter/jobs/[jobId]/questions/questions.module.css */
 .page { font-size: 14px; color: var(--color-muted); }
 .header { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--spacing-16);
   flex-wrap: wrap; margin-bottom: var(--spacing-16); }
@@ -6,17 +6,12 @@
 .breadcrumb a { color: var(--color-brand); }
 .breadcrumb a:hover { color: var(--color-brand-dark); }
 .title { margin: 0; font: 600 24px/1.3 var(--font-matter); letter-spacing: -.02em; color: var(--color-navy); }
-.section { margin: 24px 0 var(--spacing-12); font: 600 15px var(--font-matter); letter-spacing: -.01em; color: var(--color-navy); }
 .note { margin: 0 0 var(--spacing-12); }
 .list { list-style: none; margin: 0; padding: 0; background: var(--color-surface); border: 1px solid var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-card); overflow: hidden; }
 .list > li + li { border-top: 1px solid var(--hairline-soft); }
 .row { padding: var(--spacing-16); }
 .meta { margin: 0 0 4px; font: 500 12px var(--font-matter); color: var(--color-muted); }
 .question { margin: 0; max-width: 78ch; font-size: 16px; line-height: 1.5; color: var(--color-navy); }
-.evidence { margin: var(--spacing-12) 0 0; max-width: 78ch; font-size: 14px; }
-.evidence mark { padding: 1px 3px; border-radius: 2px; background: var(--color-highlight); color: var(--color-navy); }
-.warning { margin: var(--spacing-12) 0 0; color: var(--color-danger); }
-.warning::before { content: '! '; font-weight: 500; }
 .guidelines { margin-top: var(--spacing-12); max-width: 78ch; }
 .guidelines summary { cursor: pointer; }
 .guidelines summary:hover { color: var(--color-brand-dark); }

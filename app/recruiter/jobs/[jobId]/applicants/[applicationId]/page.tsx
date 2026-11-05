@@ -64,7 +64,7 @@ export default async function ApplicationPage({
                 <input type="hidden" name="pinned" value={String(!data.pinned)} />
                 <button className="textlink cursor-pointer">{data.pinned ? 'Unpin' : 'Pin to top'}</button>
               </ActionForm>
-              <Link href={`/recruiter/applications/${applicationId}/questions`} className="textlink">
+              <Link href={`/recruiter/jobs/${jobId}/questions`} className="textlink">
                 Interview questions
               </Link>
               {INTERVIEW_STAGES.includes(owned.status) && (
