@@ -80,10 +80,10 @@ export function SignUpForm() {
               <label
                 key={option}
                 className={cn(
-                  "flex h-12 cursor-pointer items-center justify-center rounded-small font-arial text-sm transition-[background-color,box-shadow,color] duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-[3px] has-[:focus-visible]:outline-lavender",
+                  "flex h-12 cursor-pointer items-center justify-center rounded-small font-arial text-sm transition-[background-color,box-shadow,color] duration-200 has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-[3px] has-[:focus-visible]:outline-brand",
                   role === option
-                    ? "bg-kelp text-platinum shadow-[inset_0_0_0_1px_var(--hairline-strong)]"
-                    : "text-silver shadow-[inset_0_0_0_1px_var(--hairline)] hover:bg-wash hover:text-mist",
+                    ? "bg-tint text-navy shadow-[inset_0_0_0_1px_var(--hairline-strong)]"
+                    : "text-muted shadow-[inset_0_0_0_1px_var(--hairline)] hover:bg-wash hover:text-ink",
                 )}
               >
                 <input
@@ -132,7 +132,7 @@ export function SignUpForm() {
           onChange={(e) => setRepeatPassword(e.target.value)}
         />
         <FormError message={error} />
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full" loading={isLoading}>
           {isLoading ? "Creating account..." : "Create account"}
         </Button>
       </form>

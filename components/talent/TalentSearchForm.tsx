@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useTransition, type FormEvent } from "react";
 
 import {
   searchAction,
   type TalentResult,
 } from "@/app/recruiter/talent-search/actions";
 import { Button } from "@/components/ui/button";
+import { ProgressNote } from "@/components/ui/progress";
+import { useSessionState } from "@/components/viewer";
 
 import { TalentResults } from "./TalentResults";
 
 export function TalentSearchForm() {
-  const [query, setQuery] = useState("");
-  const [result, setResult] = useState<TalentResult | null>(null);
-  const [showPartial, setShowPartial] = useState(false);
+  const [query, setQuery] = useSessionState("talent-query", "");
+  const [result, setResult] = useSessionState<TalentResult | null>("talent-result", null);
+  const [showPartial, setShowPartial] = useSessionState("talent-partial", false);
   const [pending, startTransition] = useTransition();
 
   function submit(event: FormEvent) {
@@ -38,15 +40,16 @@ export function TalentSearchForm() {
           maxLength={300}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Python developers with REST API experience"
-          className="min-h-11 min-w-0 flex-[1_1_260px] rounded-small border bg-deep px-3 text-sm text-mist"
+          className="field-box min-h-11 min-w-0 flex-[1_1_260px] px-3 text-sm"
         />
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" loading={pending}>
           {pending ? "Searching…" : "Search"}
         </Button>
       </form>
+      {pending && <ProgressNote label="Searching resumes and checking the evidence..." className="mt-4" />}
       <div aria-live="polite">
         {result?.ok === false && (
-          <p role="alert" className="mt-4 text-sm text-coral">
+          <p role="alert" className="mt-4 text-sm text-danger">
             {result.message}
           </p>
         )}

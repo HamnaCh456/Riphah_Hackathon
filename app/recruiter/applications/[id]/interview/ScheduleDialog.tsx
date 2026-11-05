@@ -1,16 +1,22 @@
 // app/recruiter/applications/[id]/interview/ScheduleDialog.tsx
 'use client';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import { Dialog } from '@/components/ui/dialog';
 import { Select } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toast';
 import { addInterviewerAction, saveInterviewAction } from '@/app/recruiter/interviews/actions';
 import { DURATIONS, INTERVIEW_TYPES } from '@/lib/interviews/schemas';
 import { TIME_SLOTS } from '@/lib/interviews/time';
 import styles from '@/app/recruiter/interviews/interviews.module.css';
+
+// The calendar is the heaviest part of this page and only opens with this dialog.
+const DatePicker = dynamic(() => import('@/components/ui/date-picker').then((m) => m.DatePicker), {
+  loading: () => <Skeleton className="mt-6 h-12" />,
+});
 
 export type InterviewerOption = { id: string; name: string };
 export type ScheduleInitial = {

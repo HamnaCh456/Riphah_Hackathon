@@ -1,13 +1,13 @@
 // app/recruiter/applications/[id]/questions/page.tsx
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { AppShell } from '@/components/app-shell';
 import { getOwnedApplication } from '@/lib/auth/ownership';
 import { requireRecruiter } from '@/lib/auth/guards';
 import { db } from '@/lib/db';
 import { QuestionsClient, type QuestionRow } from './QuestionsClient';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Interview questions' };
 
 export default async function QuestionsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -25,7 +25,7 @@ export default async function QuestionsPage({ params }: { params: Promise<{ id: 
   if (questions.error) throw questions.error;
 
   return (
-    <AppShell profile={recruiter}>
+    <>
       <QuestionsClient
         applicationId={id}
         breadcrumb={<Link href={`/recruiter/jobs/${app.jobId}/applicants/${id}`}>{app.candidateName} · {app.jobTitle}</Link>}
@@ -33,6 +33,6 @@ export default async function QuestionsPage({ params }: { params: Promise<{ id: 
         hasProjects={(projects.count ?? 0) > 0}
         questions={(questions.data ?? []) as QuestionRow[]}
       />
-    </AppShell>
+    </>
   );
 }

@@ -81,7 +81,7 @@ export const stageLabel = (status: ApplicationStatus) => STAGE_LABELS[status];
 export function drillDown(dashboard: Dashboard, metric: string): { title: string; ids: string[] } | null {
   if (metric === 'applications') return { title: 'Applications', ids: dashboard.applications };
   if (metric === 'shortlisted') return { title: 'Shortlisted', ids: dashboard.shortlisted };
-  if (metric === 'pending') return { title: 'Pending reviews', ids: dashboard.pending };
+  if (metric === 'pending') return { title: 'Under review', ids: dashboard.pending };
 
   const [kind, value] = [metric.slice(0, metric.indexOf(':')), metric.slice(metric.indexOf(':') + 1)];
   if (kind === 'stage') {

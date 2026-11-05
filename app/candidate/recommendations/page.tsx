@@ -1,18 +1,18 @@
 import Link from "next/link";
 
-import { AppShell } from "@/components/app-shell";
 import { ActionForm } from "@/components/matching/ActionForm";
 import { ApplyButton } from "@/components/pipeline/ApplyButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { requireCandidate } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
-import { recommendJobs, type Recommendations } from "@/lib/talent/recommend";
+import type { Recommendations } from "@/lib/talent/recommend";
+import { cachedRecommendations } from "@/lib/talent/recommend-cache";
 import { plainSnippet } from "@/lib/talent/recommend-logic";
 
 import { savePreferencesAction } from "./actions";
 
-export const metadata = { title: "Jobs for you | Talent Intelligence" };
+export const metadata = { title: "Jobs for you" };
 export const maxDuration = 60; // Applying runs the assessment after the response.
 
 const EMPTY: Record<Recommendations["status"], React.ReactNode> = {
@@ -48,13 +48,13 @@ export default async function RecommendationsPage() {
 
   let data: Recommendations | null = null;
   try {
-    data = await recommendJobs(admin, profile.id, interests);
+    data = await cachedRecommendations(profile.id, interests);
   } catch (error) {
     console.error("Recommendations failed", error);
   }
 
   return (
-    <AppShell profile={profile}>
+    <>
       <div className="max-w-3xl">
         <h1 className="text-2xl">Jobs for you</h1>
         <p className="mt-2 text-sm">
@@ -63,18 +63,18 @@ export default async function RecommendationsPage() {
         </p>
 
         {!data && (
-          <p role="alert" className="mt-6 text-sm text-coral">
+          <p role="alert" className="mt-6 text-sm text-danger">
             Recommendations could not load. Reload to try again.
           </p>
         )}
         {data?.jobs.length === 0 && (
-          <p className="mt-6 border-t pt-4 text-sm">{EMPTY[data.status]}</p>
+          <p className="card mt-5 p-5 text-sm">{EMPTY[data.status]}</p>
         )}
         {data && data.jobs.length > 0 && (
-          <ul className="mt-6 border-b">
+          <ul className="mt-5 space-y-3">
             {data.jobs.map((job) => (
-              <li key={job.jobId} className="border-t py-4">
-                <p className="text-platinum">{job.title}</p>
+              <li key={job.jobId} className="card p-5">
+                <h2 className="text-base">{job.title}</h2>
                 <p className="mt-1 text-sm">{plainSnippet(job.description)}</p>
                 {job.matchedSkills.length > 0 && (
                   <p className="mt-2 text-sm">
@@ -94,8 +94,8 @@ export default async function RecommendationsPage() {
           </ul>
         )}
 
-        <section aria-label="Your choices" className="mt-8">
-          <h2 className="text-platinum">Your choices</h2>
+        <section aria-label="Your choices" className="card mt-5 p-5">
+          <h2 className="text-lg">Your choices</h2>
           <ActionForm action={savePreferencesAction} className="mt-3 space-y-3">
             <div>
               <label htmlFor="interests" className="mb-1 block font-arial text-sm">
@@ -127,6 +127,6 @@ export default async function RecommendationsPage() {
           </ActionForm>
         </section>
       </div>
-    </AppShell>
+    </>
   );
 }

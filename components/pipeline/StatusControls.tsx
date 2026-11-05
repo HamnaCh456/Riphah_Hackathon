@@ -31,7 +31,7 @@ function ReasonMove({ applicationId, move }: { applicationId: string; move: Move
       </summary>
       <ActionForm
         action={changeStatusAction}
-        className="absolute right-0 z-20 mt-2 w-[min(20rem,calc(100vw-40px))] space-y-2 rounded-small border bg-kelp p-3 max-sm:left-0 max-sm:right-auto"
+        className="absolute right-0 z-20 mt-2 w-[min(20rem,calc(100vw-40px))] space-y-2 rounded-card border bg-surface p-3 shadow-raised max-sm:left-0 max-sm:right-auto"
       >
         <input type="hidden" name="applicationId" value={applicationId} />
         <input type="hidden" name="to" value={move.to} />

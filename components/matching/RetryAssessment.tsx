@@ -38,7 +38,7 @@ export function RetryAssessment({ applicationId, label, action }: {
       type="button"
       variant="ghost"
       size="sm"
-      disabled={pending || waiting}
+      loading={pending || waiting}
       onClick={() =>
         start(async () => {
           const data = new FormData();

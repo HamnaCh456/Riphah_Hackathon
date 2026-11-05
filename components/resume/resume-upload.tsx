@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { ProgressNote } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/toast";
 import { MAX_RESUME_BYTES, RESUME_FAILURE_MESSAGES } from "@/lib/resume/file-check";
 import { cn } from "@/lib/utils";
@@ -75,23 +76,21 @@ export function ResumeUpload({ compact }: { compact: boolean }) {
           void upload(event.dataTransfer.files[0]);
         }}
         className={cn(
-          "flex cursor-pointer rounded-small border border-dashed border-hairline-strong font-arial text-sm transition-colors hover:border-silver hover:bg-wash",
+          "flex cursor-pointer rounded-small border border-dashed border-hairline-strong font-arial text-sm transition-colors hover:border-brand hover:bg-wash",
           compact
-            ? "items-center justify-center px-4 py-2.5 text-mist"
+            ? "items-center justify-center px-4 py-2.5 text-ink"
             : "min-h-56 flex-col items-center justify-center gap-1.5 p-6 text-center",
-          isDragging && "border-silver bg-wash",
+          isDragging && "border-brand bg-wash",
           uploading && "pointer-events-none",
         )}
       >
         {uploading ? (
-          <span role="status" className="text-mist">
-            Reading {uploading}...
-          </span>
+          <ProgressNote label={`Reading ${uploading}...`} className="w-full" />
         ) : compact ? (
           "Replace file"
         ) : (
           <>
-            <span className="text-base text-platinum">Drop your resume here, or click to choose</span>
+            <span className="text-base text-navy">Drop your resume here, or click to choose</span>
             <span>PDF or DOCX, up to 4 MB</span>
           </>
         )}
@@ -106,7 +105,7 @@ export function ResumeUpload({ compact }: { compact: boolean }) {
         onChange={(event) => void upload(event.target.files?.[0])}
       />
       {error && (
-        <p role="alert" className="mt-2 font-arial text-sm text-coral">
+        <p role="alert" className="mt-2 font-arial text-sm text-danger">
           {error}
         </p>
       )}

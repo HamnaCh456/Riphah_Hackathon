@@ -1,12 +1,13 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { after } from 'next/server';
 import { z } from 'zod';
 
 import type { ActionResult } from '@/components/matching/ActionForm';
 import { requireCandidate } from '@/lib/auth/guards';
 import { runAssessment } from '@/lib/matching/run';
+import { recommendationsTagFor } from '@/lib/talent/recommend-cache';
 import { getCurrentResume } from '@/lib/resume/service';
 import { createClient } from '@/lib/supabase/server';
 
@@ -41,6 +42,7 @@ export async function applyAction(formData: FormData): Promise<ActionResult> {
     }
   });
 
+  updateTag(recommendationsTagFor(profile.id));
   revalidatePath('/candidate/applications');
   revalidatePath('/candidate/jobs');
   return { ok: true, message: 'Application sent' };

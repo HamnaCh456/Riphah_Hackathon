@@ -63,6 +63,7 @@ test('feedback and decision stay hidden from the candidate', async ({ page, brow
   await pick(page, 'Recommendation', 'Advance');
   await page.getByLabel('Concerns').fill('SECRET-FEEDBACK-TEXT');
   await page.getByRole('button', { name: 'Save feedback' }).click();
+  await expect(page.getByText('Feedback saved')).toBeVisible();
   await expect(page.getByText('SECRET-FEEDBACK-TEXT')).toBeVisible();
 
   await page.reload();

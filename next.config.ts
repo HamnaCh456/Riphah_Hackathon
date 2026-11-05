@@ -9,6 +9,11 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // How long the browser reuses a page before asking the server again, in seconds.
+    // components/keep-fresh.tsx reloads quietly after 30 seconds, so data doesn't stay old this long.
+    staleTimes: { dynamic: 300, static: 300 },
+  },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },

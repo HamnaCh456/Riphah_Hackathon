@@ -41,10 +41,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <p
             key={t.id}
-            className={`rounded-small border bg-kelp px-4 py-3 font-arial text-sm ${
+            className={`rounded-small border bg-surface px-4 py-3 font-arial text-sm shadow-raised animate-in fade-in-0 slide-in-from-bottom-2 duration-200 ${
               t.tone === "error"
-                ? "border-coral text-coral"
-                : "border-hairline-strong text-mist"
+                ? "border-l-4 border-l-danger text-danger"
+                : "border-l-4 border-l-teal text-ink"
             }`}
           >
             {t.message}

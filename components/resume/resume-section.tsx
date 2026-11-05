@@ -70,7 +70,7 @@ export function ResumeSection<T extends Provenance>({
                           rows={3}
                           value={value}
                           onChange={(event) => change(event.target.value)}
-                          className="mt-1 block w-full resize-y rounded-small border border-hairline bg-deep p-2.5 font-arial text-sm leading-relaxed text-mist transition-colors hover:border-hairline-strong focus:border-silver"
+                          className="mt-1 block w-full resize-y rounded-small border border-hairline bg-surface p-2.5 font-arial text-sm leading-relaxed text-ink transition-colors hover:border-hairline-strong focus:border-muted"
                         />
                       ) : (
                         <Input
@@ -86,12 +86,12 @@ export function ResumeSection<T extends Provenance>({
               </div>
 
               {item.excerpt && (
-                <p className="mt-2 border-l-2 border-citrine pl-2.5 font-mono text-xs leading-relaxed">
+                <p className="mt-2 border-l-2 border-gold pl-2.5 font-mono text-xs leading-relaxed">
                   {item.excerpt}
                 </p>
               )}
               {item.source === "resume" && !item.verified && (
-                <p className="mt-1 font-arial text-sm text-coral">
+                <p className="mt-1 font-arial text-sm text-danger">
                   Not found in your resume. Check or remove this.
                 </p>
               )}

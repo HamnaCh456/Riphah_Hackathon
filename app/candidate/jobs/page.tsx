@@ -1,6 +1,5 @@
 import Link from 'next/link';
 
-import { AppShell } from '@/components/app-shell';
 import { ApplyButton } from '@/components/pipeline/ApplyButton';
 import { requireCandidate } from '@/lib/auth/guards';
 import { db } from '@/lib/db';
@@ -9,7 +8,7 @@ import { PUBLIC_STATUS } from '@/lib/pipeline/status';
 import { getCurrentResume } from '@/lib/resume/service';
 import { createClient } from '@/lib/supabase/server';
 
-export const metadata = { title: 'Open jobs | Talent Intelligence' };
+export const metadata = { title: 'Open jobs' };
 export const maxDuration = 60; // Applying runs the assessment after the response.
 
 const PAGE_SIZE = 24;
@@ -46,28 +45,28 @@ export default async function CandidateJobsPage({
   const shown = jobs.slice(0, limit);
 
   return (
-    <AppShell profile={profile}>
+    <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl">Open jobs</h1>
         <Link href="/candidate/applications" className="textlink font-arial text-sm">My applications</Link>
       </div>
 
       {!resume && (
-        <p className="mt-4 text-sm text-mist">
+        <p className="mt-4 text-sm text-ink">
           You need a resume to apply. <Link href="/candidate/resume" className="textlink">Upload your resume</Link>
         </p>
       )}
 
-      {jobs.length === 0 && <p className="mt-6 border-t pt-4 text-sm">No open jobs right now.</p>}
+      {jobs.length === 0 && <p className="card mt-5 p-5 text-sm">No open jobs right now.</p>}
 
-      <div className="mt-5">
+      <div className="mt-5 space-y-3">
         {shown.map((job) => {
           const status = applied.get(job.id);
           return (
-            <article key={job.id} className="border-t py-4 text-sm">
+            <article key={job.id} className="card p-5 text-sm transition-shadow hover:shadow-raised">
               <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
                 <div className="min-w-0 flex-1 basis-72">
-                  <h2 className="text-[15px]">{job.title}</h2>
+                  <h2 className="text-base">{job.title}</h2>
                   <p className="mt-0.5 text-[13px]">
                     {[job.department, job.location, typeLabel(job.employment_type), job.salary].filter(Boolean).join(' · ')}
                   </p>
@@ -83,7 +82,7 @@ export default async function CandidateJobsPage({
                 )}
               </div>
               <details className="mt-2">
-                <summary className="w-fit cursor-pointer text-[13px] transition-colors hover:text-platinum">
+                <summary className="w-fit cursor-pointer text-[13px] transition-colors hover:text-brand-dark">
                   Read the job description
                 </summary>
                 <p className="mt-2 max-w-[78ch] whitespace-pre-wrap leading-relaxed">{job.description}</p>
@@ -98,6 +97,6 @@ export default async function CandidateJobsPage({
           Show more ({jobs.length - limit} more)
         </Link>
       )}
-    </AppShell>
+    </>
   );
 }

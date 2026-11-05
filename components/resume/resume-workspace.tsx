@@ -37,13 +37,13 @@ function RetryNotice({
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-3 border-y py-3">
-      <p className="min-w-0 flex-1 basis-64 font-arial text-sm text-coral">
+      <p className="min-w-0 flex-1 basis-64 font-arial text-sm text-danger">
         {retryable.fileName}: {RESUME_FAILURE_MESSAGES.ai_failed}
       </p>
       <Button
         variant="ghost"
         size="sm"
-        disabled={isPending}
+        loading={isPending}
         onClick={() =>
           startTransition(async () => {
             const result = await retryResumeParse(retryable.id);
@@ -171,7 +171,7 @@ function ResumeEditor({ resume }: { resume: ResumeView }) {
                       className="mt-1.5 h-10"
                     />
                     {flagged && (
-                      <p id={`contact-${field}-flag`} className="mt-1 font-arial text-sm text-coral">
+                      <p id={`contact-${field}-flag`} className="mt-1 font-arial text-sm text-danger">
                         Not found in your resume. Check this.
                       </p>
                     )}
@@ -183,7 +183,7 @@ function ResumeEditor({ resume }: { resume: ResumeView }) {
 
           <section aria-labelledby="skills-heading">
             <h2 id="skills-heading" className="border-b pb-2 text-base">
-              Skills <span className="font-arial text-sm tabular-nums text-silver">{skills.length + addedSkills.length}</span>
+              Skills <span className="font-arial text-sm tabular-nums text-muted">{skills.length + addedSkills.length}</span>
             </h2>
             {skills.length + addedSkills.length === 0 && (
               <p className="mt-2 text-sm">No skills found. Add yours below.</p>
@@ -268,8 +268,8 @@ function ResumeEditor({ resume }: { resume: ResumeView }) {
       </div>
 
       {isDirty && (
-        <div className="sticky bottom-0 z-10 -mx-5 mt-6 flex items-center justify-end gap-3 border-t bg-abyss px-5 py-3 lg:-mx-10 lg:px-10">
-          <Button disabled={isSaving} size="sm" onClick={save}>
+        <div className="sticky bottom-0 z-10 -mx-5 mt-6 flex items-center justify-end gap-3 border-t bg-surface px-5 py-3 lg:-mx-10 lg:px-10">
+          <Button loading={isSaving} size="sm" onClick={save}>
             {isSaving ? "Saving..." : "Save corrections"}
           </Button>
         </div>
@@ -291,27 +291,27 @@ function SkillRow({
   return (
     <li className="border-b border-hairline-soft py-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="min-w-0 text-sm text-platinum">
+        <p className="min-w-0 text-sm text-navy">
           {skill.name}
-          {showRaw && <span className="text-silver"> · written as {skill.rawTerm}</span>}
-          {skill.source === "candidate" && <span className="text-silver"> · added by you</span>}
+          {showRaw && <span className="text-muted"> · written as {skill.rawTerm}</span>}
+          {skill.source === "candidate" && <span className="text-muted"> · added by you</span>}
         </p>
         <button
           type="button"
           aria-label={`Remove ${skill.name}`}
           onClick={onRemove}
-          className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-silver transition-colors hover:bg-wash hover:text-platinum"
+          className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-muted transition-colors hover:bg-wash hover:text-navy"
         >
           ×
         </button>
       </div>
       {skill.excerpt && (
-        <p className="mt-1 border-l-2 border-citrine pl-2.5 font-mono text-xs leading-relaxed">
+        <p className="mt-1 border-l-2 border-gold pl-2.5 font-mono text-xs leading-relaxed">
           {skill.excerpt}
         </p>
       )}
       {skill.source === "ai" && !skill.verified && (
-        <p className="mt-1 font-arial text-sm text-coral">
+        <p className="mt-1 font-arial text-sm text-danger">
           Not found in your resume. Check or remove this.
         </p>
       )}

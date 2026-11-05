@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 
 import { requireCandidate } from "@/lib/auth/guards";
@@ -9,6 +9,7 @@ import { RESUME_FAILURE_MESSAGES } from "@/lib/resume/file-check";
 import { applyCorrections, resumeDataSchema } from "@/lib/resume/schema";
 import { parseStoredResume } from "@/lib/resume/service";
 import { displaySkill, normalizeSkill } from "@/lib/skills/normalize";
+import { recommendationsTagFor } from "@/lib/talent/recommend-cache";
 
 const PAGE = "/candidate/resume";
 
@@ -100,6 +101,7 @@ export async function saveResumeCorrections(input: unknown): Promise<ActionResul
     return { ok: false, error: SAVE_FAILED };
   }
 
+  updateTag(recommendationsTagFor(candidate.id));
   revalidatePath(PAGE);
   return { ok: true };
 }
@@ -125,6 +127,7 @@ export async function retryResumeParse(resumeId: string): Promise<ActionResult> 
   if (!resume) return { ok: false, error: "This resume no longer exists." };
 
   const outcome = await parseStoredResume(resume.id, resume.raw_text);
+  updateTag(recommendationsTagFor(candidate.id));
   revalidatePath(PAGE);
   return outcome.ok
     ? { ok: true }

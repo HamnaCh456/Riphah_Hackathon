@@ -34,6 +34,16 @@ Modules 1-10 and 12 are built and live at https://riphah-recruitment.vercel.app.
 
 Commands: `npm run dev`, `npm test`, `npm run typecheck`, `npm run build`. `npm run lint` currently fails on its config.
 
+## Speed and caching
+
+Keep these together when changing how pages load:
+
+- `vercel.json` runs the server in Tokyo (`hnd1`), next to the database. Move both together.
+- The navbar lives in `app/recruiter/layout.tsx` and `app/candidate/layout.tsx`. Pages render content only, and still run their own `requireRecruiter()` or `requireCandidate()`.
+- The browser keeps pages for 5 minutes (`staleTimes` in `next.config.ts`). `components/keep-fresh.tsx` reloads quietly after 30 seconds.
+- Nav links load their pages ahead of time. "Jobs for you" doesn't, because it calls the embeddings API. Its results are cached on the server for 5 minutes in `lib/talent/recommend-cache.ts`, so any new action that changes a resume, an application or a job must clear that tag.
+- Slow AI results stay after leaving a tab through `useSessionState` in `components/viewer.tsx`.
+
 ## Open decisions
 
 - The stack is not final. The proposal is Next.js and Supabase with pgvector, one LLM provider and
@@ -60,8 +70,9 @@ When a module is done, commit it and push it to https://github.com/HamnaCh456/Ri
 
 ## DESIGN.md
 
-`DESIGN.md` is the design system, and its colour, type, spacing and component rules apply to UI work here. It was written for another project (BetterFind), so some of it doesn't match this folder:
+`DESIGN.md` is the design system, and its type, spacing and component rules apply to UI work here. It was written for another project (BetterFind), so some of it doesn't match this folder:
 
+- Its dark colour tables (§3) are replaced. The palette is white, light blue, navy, teal and gold, defined in `app/globals.css` and `tailwind.config.ts`. Add new colours there.
 - `index.html`, `styles.css`, `main.js` and `README.md`, which it refers to, don't exist here. Its tokens exist only as the tables in §3 until a stylesheet defines them.
 - It points to this file for "product truth" and the AGO pipeline (§9.1). Neither is written here, so don't assume this project is BetterFind or that its screens follow that pipeline. The product truth for this project is [REQUIREMENTS.md](REQUIREMENTS.md).
 - Its vanilla-only, no-build conventions (§12) describe the BetterFind build and aren't a decision for this project. Don't carry over its branding or marketing-user wording.

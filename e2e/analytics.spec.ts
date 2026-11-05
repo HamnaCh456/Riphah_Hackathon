@@ -11,7 +11,7 @@ test('dashboard updates after a shortlist', async ({ page }) => {
 
   await page.goto('/recruiter/analytics');
   const shortlistedBefore = await tile(page, 'Shortlisted');
-  const pendingBefore = await tile(page, 'Pending reviews');
+  const pendingBefore = await tile(page, 'Under review');
 
   await page.goto(`/recruiter/jobs/${app.jobId}/applicants/${app.applicationId}`);
   await page.getByRole('button', { name: 'Shortlist' }).click();
@@ -19,7 +19,7 @@ test('dashboard updates after a shortlist', async ({ page }) => {
 
   await page.goto('/recruiter/analytics');
   expect(await tile(page, 'Shortlisted')).toBe(shortlistedBefore + 1);
-  expect(await tile(page, 'Pending reviews')).toBe(pendingBefore - 1);
+  expect(await tile(page, 'Under review')).toBe(pendingBefore - 1);
 
   // Going Back also shows fresh numbers.
   await page.goto(`/recruiter/jobs/${app.jobId}/applicants/${app.applicationId}`);
@@ -32,11 +32,11 @@ test('job filter narrows the numbers, and a number opens its applicants', async 
   await loginAs(page, 'recruiter');
   await page.goto(`/recruiter/analytics?job=${app.jobId}`);
 
-  expect(await tile(page, 'Applications')).toBe(1);
-  expect(await tile(page, 'Pending reviews')).toBe(1);
+  expect(await tile(page, 'Applicants')).toBe(1);
+  expect(await tile(page, 'Under review')).toBe(1);
 
-  await page.getByRole('link', { name: /Pending reviews/ }).click();
-  await expect(page.getByRole('heading', { name: 'Pending reviews' })).toBeVisible();
+  await page.getByRole('link', { name: /Under review/ }).click();
+  await expect(page.getByRole('heading', { name: 'Under review' })).toBeVisible();
   await expect(page.getByText(app.candidateName)).toBeVisible();
 });
 
@@ -50,7 +50,7 @@ test('skill gaps say no evidence, not that the skill is missing', async ({ page 
 test('a candidate cannot open analytics', async ({ page }) => {
   await loginAs(page, 'candidate');
   await page.goto('/recruiter/analytics');
-  await expect(page.getByTestId('tile-Applications')).toHaveCount(0);
+  await expect(page.getByTestId('tile-Applicants')).toHaveCount(0);
 });
 
 test("changing the URL does not reveal another recruiter's job", async ({ page }) => {

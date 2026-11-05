@@ -11,30 +11,30 @@ import { MATCH_LABELS } from './labels';
 function MatchMark({ status }: { status: MatchStatus }) {
   if (status === 'confirmed_absent') {
     return (
-      <svg aria-hidden="true" viewBox="0 0 10 10" className="size-2.5 shrink-0 text-coral">
+      <svg aria-hidden="true" viewBox="0 0 10 10" className="size-2.5 shrink-0 text-danger">
         <path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" strokeWidth="1.8" />
       </svg>
     );
   }
   if (status === 'no_evidence') {
-    return <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full border border-dashed border-silver" />;
+    return <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full border border-dashed border-muted" />;
   }
   if (status === 'partial') {
     return (
       <span
         aria-hidden="true"
-        className="size-2.5 shrink-0 rounded-full border border-mist bg-[linear-gradient(90deg,var(--color-liquid-mist)_50%,transparent_50%)]"
+        className="size-2.5 shrink-0 rounded-full border border-teal bg-[linear-gradient(90deg,var(--color-teal)_50%,transparent_50%)]"
       />
     );
   }
-  return <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full bg-mist" />;
+  return <span aria-hidden="true" className="size-2.5 shrink-0 rounded-full bg-teal" />;
 }
 
 const WORD_TONE: Record<MatchStatus, string> = {
-  matched: 'text-mist',
-  partial: 'text-mist',
-  no_evidence: 'text-silver',
-  confirmed_absent: 'text-coral',
+  matched: 'text-teal',
+  partial: 'text-ink',
+  no_evidence: 'text-muted',
+  confirmed_absent: 'text-danger',
 };
 
 export function RequirementRow({ applicationId, req }: {
@@ -48,11 +48,11 @@ export function RequirementRow({ applicationId, req }: {
   const showHelp = status === 'no_evidence' || status === 'confirmed_absent';
 
   return (
-    <div className="border-b border-hairline-soft py-4 text-sm">
+    <div className="border-b border-hairline-soft py-4 text-sm last:border-b-0 last:pb-0">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h3 className="text-[15px]">
           {req.label}
-          {!req.is_required && <span className="font-normal text-silver"> (preferred)</span>}
+          {!req.is_required && <span className="font-normal text-muted"> (preferred)</span>}
         </h3>
         <span className={`inline-flex items-center gap-2 ${WORD_TONE[status]}`}>
           <MatchMark status={status} />
@@ -72,7 +72,7 @@ export function RequirementRow({ applicationId, req }: {
 
       {real.map((e) => (
         <p key={e.id} className="mt-2 max-w-[78ch] leading-relaxed">
-          <mark className="rounded-[2px] bg-citrine px-1 py-px text-abyss [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
+          <mark className="rounded-[2px] bg-highlight px-1 py-px text-navy [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
             {e.quote}
           </mark>
           {e.section && <span className="text-[13px]"> from {e.section}</span>}
@@ -84,7 +84,7 @@ export function RequirementRow({ applicationId, req }: {
         </p>
       ))}
       {req.needs_review && !req.overrideReason && (
-        <p className="mt-2 font-medium text-mist">
+        <p className="mt-2 font-medium text-ink">
           Needs manual check{req.review_reason ? `: ${req.review_reason}` : ''}
         </p>
       )}
@@ -93,7 +93,7 @@ export function RequirementRow({ applicationId, req }: {
       )}
 
       <details className="mt-2">
-        <summary className="w-fit cursor-pointer text-[13px] transition-colors hover:text-platinum">
+        <summary className="w-fit cursor-pointer text-[13px] transition-colors hover:text-brand-dark">
           Correct this result
         </summary>
         <ActionForm action={overrideRequirementAction} className="mt-3 space-y-3" reset>
@@ -127,7 +127,7 @@ function ResultOption({ value, label, checked }: { value: string; label: string;
   return (
     <label className="cursor-pointer">
       <input type="radio" name="status" value={value} defaultChecked={checked} required className="peer sr-only" />
-      <span className="block rounded-small border px-2.5 py-1.5 transition-colors hover:bg-wash hover:text-platinum peer-checked:border-hairline-strong peer-checked:bg-kelp peer-checked:text-platinum peer-focus-visible:outline peer-focus-visible:outline-1 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-lavender">
+      <span className="block rounded-small border px-2.5 py-1.5 transition-colors hover:border-brand hover:bg-wash hover:text-brand-dark peer-checked:border-brand peer-checked:bg-tint peer-checked:text-navy peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand">
         {label}
       </span>
     </label>

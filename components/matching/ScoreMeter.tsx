@@ -21,7 +21,7 @@ export function ScoreMeter({ score, ceiling, className = '' }: {
             'repeating-linear-gradient(135deg, var(--hairline-strong) 0 2px, transparent 2px 4px)',
         }}
       />
-      <div className="absolute inset-y-0 left-0 bg-lavender" style={{ width: `${score}%` }} />
+      <div className="absolute inset-y-0 left-0 bg-brand" style={{ width: `${score}%` }} />
     </div>
   );
 }

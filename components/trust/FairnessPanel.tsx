@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ProgressNote } from "@/components/ui/progress";
+import { useSessionState } from "@/components/viewer";
 import {
   runFairnessAction,
   type FairnessActionResult,
@@ -16,12 +18,12 @@ const VERDICT_TEXT = {
 };
 
 export function FairnessPanel({ applicationId }: { applicationId: string }) {
-  const [result, setResult] = useState<FairnessActionResult | null>(null);
+  const [result, setResult] = useSessionState<FairnessActionResult | null>(`fairness:${applicationId}`, null);
   const [pending, startTransition] = useTransition();
 
   return (
-    <section aria-label="Fairness check" className="mt-8 border-t pt-4">
-      <h2 className="text-platinum">Fairness check</h2>
+    <section aria-label="Fairness check" className="card mt-5 p-5">
+      <h2 className="text-lg">Fairness check</h2>
       <p className="mt-1 text-sm">
         Scores this resume again with personal details changed. The saved score
         stays the same.
@@ -30,7 +32,7 @@ export function FairnessPanel({ applicationId }: { applicationId: string }) {
         variant="ghost"
         size="sm"
         className="mt-3"
-        disabled={pending}
+        loading={pending}
         onClick={() =>
           startTransition(async () =>
             setResult(await runFairnessAction(applicationId)),
@@ -39,16 +41,17 @@ export function FairnessPanel({ applicationId }: { applicationId: string }) {
       >
         {pending ? "Running fairness check…" : "Run fairness check"}
       </Button>
+      {pending && <ProgressNote label="Scoring the resume again with details changed..." className="mt-3" />}
       <div aria-live="polite">
         {result?.ok === false && (
-          <p role="alert" className="mt-3 text-sm text-coral">
+          <p role="alert" className="mt-3 text-sm text-danger">
             {result.message}
           </p>
         )}
         {result?.ok && (
           <>
             <p
-              className={`mt-3 text-sm ${result.report.verdict === "failed" ? "text-coral" : "text-mist"}`}
+              className={`mt-3 text-sm ${result.report.verdict === "failed" ? "text-danger" : "text-ink"}`}
             >
               {VERDICT_TEXT[result.report.verdict]}
             </p>
@@ -70,7 +73,7 @@ export function FairnessPanel({ applicationId }: { applicationId: string }) {
                 <tbody>
                   {result.report.results.map((r) => (
                     <tr key={r.attribute} className="border-t">
-                      <th scope="row" className="py-2 pr-4 font-normal text-mist">
+                      <th scope="row" className="py-2 pr-4 font-normal text-ink">
                         {r.attribute}
                       </th>
                       <td className="py-2 pr-4">

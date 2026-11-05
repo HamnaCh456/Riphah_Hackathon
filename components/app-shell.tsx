@@ -1,11 +1,17 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
-import { LogoutButton } from "@/components/logout-button";
+import { KeepFresh } from "@/components/keep-fresh";
+import { Logo } from "@/components/logo";
+import { NavProgress } from "@/components/nav-progress";
+import { ProfileMenu } from "@/components/profile-menu";
 import { ShellNav } from "@/components/shell-nav";
-import { roleHome } from "@/lib/auth/access";
+import { ViewerProvider } from "@/components/viewer";
 import type { Profile } from "@/lib/auth/guards";
 
-/** Left rail plus content area, shared by recruiter and candidate screens. */
+const DASHBOARD = { recruiter: "/recruiter/analytics", candidate: "/candidate" } as const;
+
+/** The top navbar and content area. It lives in the role layouts, so it stays put between pages. */
 export function AppShell({
   profile,
   children,
@@ -14,45 +20,27 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-svh flex-col lg:flex-row">
-      <aside className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b bg-deep px-5 py-3 lg:sticky lg:top-0 lg:h-svh lg:w-60 lg:flex-col lg:flex-nowrap lg:items-stretch lg:border-b-0 lg:border-r lg:p-5">
-        <Link
-          href={roleHome(profile.role)}
-          className="text-[17px] font-medium tracking-[-.02em] text-platinum transition-colors hover:text-silver"
-        >
-          Talent Intelligence
-        </Link>
-        <ShellNav role={profile.role} />
-        <div className="flex min-w-0 items-center gap-3 lg:flex-col lg:items-stretch">
-          <p className="hidden min-w-0 truncate font-arial text-sm sm:block">
-            {profile.fullName}
-          </p>
-          <LogoutButton />
+    <ViewerProvider userId={profile.id}>
+      <header className="sticky top-0 z-30 bg-navy shadow-card">
+        <div className="mx-auto flex min-h-[var(--nav-height)] max-w-[1440px] flex-wrap items-center justify-between gap-x-6 px-5 md:h-[var(--nav-height)] md:flex-nowrap lg:px-10">
+          <Link
+            href={DASHBOARD[profile.role]}
+            aria-label="Talent Intelligence dashboard"
+            className="flex h-[56px] shrink-0 items-center rounded-small text-white focus-visible:outline-white md:h-auto"
+          >
+            <Logo />
+          </Link>
+          <ShellNav role={profile.role} />
+          <ProfileMenu profile={profile} />
         </div>
-      </aside>
-      <main className="min-w-0 flex-1 px-5 py-6 lg:px-10">{children}</main>
-    </div>
-  );
-}
-
-/** Ruled rows of account details: a hairline per row, no boxes. */
-export function AccountRows({ profile }: { profile: Profile }) {
-  const rows = [
-    ["Name", profile.fullName],
-    ["Email", profile.email],
-    ["Role", profile.role === "recruiter" ? "Recruiter" : "Candidate"],
-  ];
-  return (
-    <dl className="mt-6 max-w-2xl border-b text-sm">
-      {rows.map(([label, value]) => (
-        <div
-          key={label}
-          className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 border-t py-3"
-        >
-          <dt>{label}</dt>
-          <dd className="break-words text-mist">{value}</dd>
-        </div>
-      ))}
-    </dl>
+      </header>
+      <Suspense>
+        <NavProgress />
+        <KeepFresh />
+      </Suspense>
+      <main className="mx-auto min-h-[calc(100svh-var(--nav-height))] w-full max-w-[1440px] px-5 py-6 lg:px-10">
+        {children}
+      </main>
+    </ViewerProvider>
   );
 }

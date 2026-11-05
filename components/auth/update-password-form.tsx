@@ -47,7 +47,7 @@ export function UpdatePasswordForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <FormError message={error} />
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full" loading={isLoading}>
           {isLoading ? "Saving..." : "Save new password"}
         </Button>
       </form>

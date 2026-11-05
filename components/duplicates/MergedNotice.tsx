@@ -35,8 +35,8 @@ export async function MergedNotice({
     .neq("id", applicationId);
 
   return (
-    <section aria-label="Linked records">
-      <h2 className="text-platinum">Linked as the same person</h2>
+    <section aria-label="Linked records" className="card p-5">
+      <h2 className="text-lg">Linked as the same person</h2>
       {applications?.length === 0 && (
         <p className="mt-1 text-sm">No other applications to your jobs.</p>
       )}

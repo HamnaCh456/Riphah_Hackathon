@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import { AiError } from "@/lib/ai/gemini";
+import { RECOMMENDATIONS_TAG } from "@/lib/talent/recommend-cache";
 import { requireRecruiter } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
 import { extractJobFromDescription, type ExtractedJob } from "@/lib/jobs/extract";
@@ -64,7 +65,10 @@ export async function saveJob(
     ? await updateJob(jobId, recruiter.id, parsed.data)
     : await createJob(recruiter.id, parsed.data);
 
-  if (result.ok) revalidatePath("/recruiter/jobs");
+  if (result.ok) {
+    revalidatePath("/recruiter/jobs");
+    updateTag(RECOMMENDATIONS_TAG);
+  }
   return result;
 }
 
@@ -146,6 +150,7 @@ async function updateJob(
   }
 
   revalidatePath(`/recruiter/jobs/${jobId}/edit`);
+  updateTag(RECOMMENDATIONS_TAG);
   return { ok: true, jobId };
 }
 
@@ -176,6 +181,7 @@ export async function setJobStatus(
 
   revalidatePath("/recruiter/jobs");
   revalidatePath(`/recruiter/jobs/${jobId}/edit`);
+  updateTag(RECOMMENDATIONS_TAG);
   return { ok: true };
 }
 

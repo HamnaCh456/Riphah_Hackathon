@@ -4,12 +4,12 @@ import type { RankedCandidate } from "@/lib/talent/rank";
 
 export function TalentResults({ results }: { results: RankedCandidate[] }) {
   return (
-    <ol className="mt-4 border-b">
+    <ol className="mt-4 space-y-3">
       {results.map((person) => (
-        <li key={person.candidateId} className="border-t py-4">
+        <li key={person.candidateId} className="card p-5">
           <Link
             href={`/recruiter/jobs/${person.jobId}/applicants/${person.applicationId}`}
-            className="text-platinum underline-offset-4 hover:underline"
+            className="font-medium text-navy underline-offset-4 transition-colors hover:text-brand-dark hover:underline"
           >
             {person.fullName ?? "Name not found"}
           </Link>
@@ -17,9 +17,9 @@ export function TalentResults({ results }: { results: RankedCandidate[] }) {
             <div key={item.facet} className="mt-3">
               <p className="text-sm">
                 {item.facet}
-                {item.note && <span className="text-mist"> · {item.note}</span>}
+                {item.note && <span className="text-ink"> · {item.note}</span>}
               </p>
-              <blockquote className="mt-1 w-fit max-w-full whitespace-pre-line break-words bg-[var(--color-citrine)] px-1.5 py-0.5 text-sm text-abyss">
+              <blockquote className="mt-1 w-fit max-w-full whitespace-pre-line break-words rounded bg-highlight px-1.5 py-0.5 text-sm text-navy">
                 {item.excerpt}
               </blockquote>
             </div>

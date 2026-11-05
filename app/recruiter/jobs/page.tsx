@@ -1,14 +1,14 @@
 import Link from "next/link";
 
-import { AppShell } from "@/components/app-shell";
 import { JobStatusButton } from "@/components/jobs/job-status-button";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireRecruiter } from "@/lib/auth/guards";
 import { listJobs, type JobListItem } from "@/lib/jobs/queries";
 import { EMPLOYMENT_TYPES } from "@/lib/jobs/schema";
 import { cn } from "@/lib/utils";
 
-export const metadata = { title: "Jobs | Talent Intelligence" };
+export const metadata = { title: "Jobs" };
 
 const FILTERS = [
   { value: "all", label: "All" },
@@ -40,7 +40,7 @@ export default async function JobsPage({
   const shown = filter === "all" ? jobs : jobs.filter((job) => job.status === filter);
 
   return (
-    <AppShell profile={profile}>
+    <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-4">
           <h1 className="text-2xl">Jobs</h1>
@@ -57,8 +57,8 @@ export default async function JobsPage({
                     href={option.value === "all" ? "/recruiter/jobs" : `/recruiter/jobs?status=${option.value}`}
                     aria-current={filter === option.value ? "page" : undefined}
                     className={cn(
-                      "rounded-small px-2.5 py-1.5 transition-colors hover:bg-wash hover:text-platinum",
-                      filter === option.value && "bg-kelp text-platinum",
+                      "rounded-small px-2.5 py-1.5 transition-colors hover:bg-wash hover:text-brand-dark",
+                      filter === option.value && "bg-tint font-medium text-navy",
                     )}
                   >
                     {option.label} <span className="tabular-nums">{count}</span>
@@ -74,7 +74,7 @@ export default async function JobsPage({
       </div>
 
       {shown.length === 0 ? (
-        <p className="mt-6 border-t pt-4 text-sm">
+        <p className="card mt-5 p-5 text-sm">
           {jobs.length === 0
             ? "No jobs yet. Post your first job to start receiving applicants."
             : `No ${filter} jobs.`}
@@ -82,33 +82,34 @@ export default async function JobsPage({
       ) : (
         <JobsTable jobs={shown} />
       )}
-    </AppShell>
+    </>
   );
 }
 
 function JobsTable({ jobs }: { jobs: JobListItem[] }) {
   return (
-    <table className="mt-5 w-full border-collapse text-sm max-md:block">
+    <div className="card mt-5 overflow-hidden">
+    <table className="data-table max-md:block">
       <thead className="max-md:hidden">
-        <tr className="border-b border-hairline-soft text-left font-mono text-[10px] uppercase tracking-[.16em]">
-          <th scope="col" className="py-2 pr-4 font-normal">Job</th>
-          <th scope="col" className="py-2 pr-4 font-normal">Type</th>
-          <th scope="col" className="py-2 pr-4 font-normal">Status</th>
-          <th scope="col" className="py-2 pr-4 text-right font-normal">Applicants</th>
-          <th scope="col" className="py-2 pr-4 font-normal">Posted</th>
-          <th scope="col" className="py-2 font-normal"><span className="sr-only">Actions</span></th>
+        <tr>
+          <th scope="col">Job</th>
+          <th scope="col">Type</th>
+          <th scope="col">Status</th>
+          <th scope="col" className="text-right">Applicants</th>
+          <th scope="col">Posted</th>
+          <th scope="col"><span className="sr-only">Actions</span></th>
         </tr>
       </thead>
       <tbody className="max-md:block">
         {jobs.map((job) => (
           <tr
             key={job.id}
-            className="border-b border-hairline-soft transition-colors hover:bg-wash max-md:grid max-md:grid-cols-2 max-md:gap-x-3 max-md:gap-y-1 max-md:py-3"
+            className="max-md:grid max-md:grid-cols-2 max-md:gap-x-3 max-md:gap-y-1 max-md:p-4"
           >
-            <td className="py-3 pr-4 max-md:col-span-2 max-md:py-0 max-md:pr-0">
+            <td className="max-md:col-span-2 max-md:!p-0">
               <Link
                 href={`/recruiter/jobs/${job.id}/edit`}
-                className="text-platinum underline-offset-4 hover:underline"
+                className="font-medium text-navy underline-offset-4 transition-colors hover:text-brand-dark hover:underline"
               >
                 {job.title}
               </Link>
@@ -118,27 +119,20 @@ function JobsTable({ jobs }: { jobs: JobListItem[] }) {
                 </p>
               )}
             </td>
-            <td className="py-3 pr-4 max-md:p-0">{typeLabel(job.employmentType)}</td>
-            <td className="py-3 pr-4 max-md:p-0">
-              <span className="inline-flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "size-1.5 rounded-full",
-                    job.status === "open" ? "bg-mist" : "shadow-[inset_0_0_0_1px_var(--color-silver-mist)]",
-                  )}
-                />
+            <td className="max-md:!p-0">{typeLabel(job.employmentType)}</td>
+            <td className="max-md:!p-0">
+              <Badge tone={job.status === "open" ? "teal" : "neutral"}>
                 {job.status === "open" ? "Open" : "Closed"}
-              </span>
+              </Badge>
             </td>
-            <td className="py-3 pr-4 text-right tabular-nums text-mist max-md:p-0 max-md:text-left">
+            <td className="text-right tabular-nums text-ink max-md:!p-0 max-md:text-left">
               {job.applicantCount}
               <span className="md:hidden"> applicant{job.applicantCount === 1 ? "" : "s"}</span>
             </td>
-            <td className="whitespace-nowrap py-3 pr-4 tabular-nums max-md:p-0">
+            <td className="whitespace-nowrap tabular-nums max-md:!p-0">
               {postedDate(job.createdAt)}
             </td>
-            <td className="whitespace-nowrap py-3 text-right max-md:col-span-2 max-md:mt-1.5 max-md:p-0 max-md:text-left">
+            <td className="whitespace-nowrap text-right max-md:col-span-2 max-md:mt-1.5 max-md:!p-0 max-md:text-left">
               <Button asChild variant="ghost" size="sm" className="mr-2">
                 <Link href={`/recruiter/jobs/${job.id}/applicants`}>Applicants</Link>
               </Button>
@@ -148,5 +142,6 @@ function JobsTable({ jobs }: { jobs: JobListItem[] }) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

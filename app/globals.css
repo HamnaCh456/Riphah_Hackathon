@@ -2,36 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens: DESIGN.md section 3. Add a token here before using a new value. */
+/* Design tokens. This palette replaces the colour tables in DESIGN.md section 3. */
 :root {
-  --color-liquid-abyss: #012624;
-  --color-liquid-deep: #011d1c;
-  --color-liquid-kelp: #003734;
-  --color-platinum: #ffffff;
-  --color-liquid-mist: #edfffe;
-  --color-silver-mist: #bbc7c6;
-  --color-lavender-phosphor: #fde9ff;
-  --color-coral: #ff7a5a;
-  --color-citrine: #f2e85c;
-  --viz-cited: #26a894;
-  --font-arial: Arial, Helvetica, system-ui;
+  --color-page: #f2f6fb;
+  --color-surface: #ffffff;
+  --color-tint: #e3eefb;
+  --color-navy: #0b2545;
+  --color-navy-raised: #16365f;
+  --color-ink: #1f3a5f;
+  --color-muted: #4a5f7a;
+  --color-brand: #1b62c4;
+  --color-brand-dark: #154f9f;
+  --color-teal: #0e7c7b;
+  --color-teal-soft: #dcf2f1;
+  --color-gold: #b8891b;
+  --color-gold-bright: #e3b84a;
+  --color-highlight: #fbf0cc;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
   --spacing-12: 12px;
   --spacing-16: 16px;
   --spacing-32: 32px;
 
-  --gradient-aurora: linear-gradient(90deg, #8ff5f0, #ffffff, #fbd3ff);
+  --hairline: rgba(11, 37, 69, 0.12);
+  --hairline-soft: rgba(11, 37, 69, 0.07);
+  --hairline-strong: rgba(11, 37, 69, 0.3);
+  --wash: rgba(27, 98, 196, 0.06);
 
-  --hairline: rgba(255, 255, 255, 0.1);
-  --hairline-soft: rgba(255, 255, 255, 0.06);
-  --hairline-strong: rgba(255, 255, 255, 0.28);
-  --wash: rgba(237, 255, 254, 0.03);
+  --radius-small: 8px;
+  --radius-card: 12px;
+  --shadow-card: 0 1px 2px rgba(11, 37, 69, 0.05), 0 2px 8px rgba(11, 37, 69, 0.05);
+  --shadow-raised: 0 2px 4px rgba(11, 37, 69, 0.06), 0 8px 20px rgba(11, 37, 69, 0.1);
 
-  --radius-small: 6px;
+  /* The navbar's height, for anything that sticks below it. */
+  --nav-height: 60px;
 
-  --scroll-thumb: rgba(237, 255, 254, 0.16);
-  --scroll-thumb-hover: rgba(237, 255, 254, 0.3);
+  --scroll-thumb: rgba(11, 37, 69, 0.18);
+  --scroll-thumb-hover: rgba(11, 37, 69, 0.32);
 
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-height: 104px;
+  }
 }
 
 @layer base {
@@ -42,31 +57,33 @@
   }
 
   body {
-    background: var(--color-liquid-abyss);
-    color: var(--color-silver-mist);
+    background: var(--color-page);
+    color: var(--color-muted);
     font-family: var(--font-matter), ui-sans-serif, system-ui;
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
   h1,
   h2,
   h3 {
-    color: var(--color-platinum);
-    font-weight: 500;
-    letter-spacing: -0.02em;
+    color: var(--color-navy);
+    font-weight: 600;
+    letter-spacing: -0.015em;
   }
 
   :focus-visible {
-    outline: 1px solid var(--color-lavender-phosphor);
-    outline-offset: 3px;
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
   }
 
-  /* Keeps browser autofill on the dark field colour. */
-  input:-webkit-autofill,
-  input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--color-liquid-mist);
-    box-shadow: inset 0 0 0 100px var(--color-liquid-deep);
-    caret-color: var(--color-liquid-mist);
+  input:focus-visible,
+  textarea:focus-visible {
+    outline-offset: 0;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-brand);
   }
 
   ::-webkit-scrollbar {
@@ -91,24 +108,181 @@
 }
 
 @layer components {
-  .bg-aurora {
-    background-image: var(--gradient-aurora);
-  }
   .textlink {
-    color: var(--color-silver-mist);
+    color: var(--color-brand);
     text-decoration: underline;
     text-underline-offset: 4px;
-    text-decoration-color: var(--hairline-strong);
-    transition: color 0.2s;
+    text-decoration-color: rgba(27, 98, 196, 0.35);
+    transition: color 0.2s, text-decoration-color 0.2s;
   }
   .textlink:hover {
-    color: var(--color-platinum);
+    color: var(--color-brand-dark);
     text-decoration-color: currentColor;
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+  .card-link {
+    transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  }
+  .card-link:hover {
+    border-color: rgba(27, 98, 196, 0.45);
+    box-shadow: var(--shadow-raised);
+    transform: translateY(-2px);
+  }
+
+  /* A table inside a card: quiet header band, a tint on the row under the pointer. */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .data-table thead tr {
+    background: var(--color-page);
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+  .data-table th[scope="col"] {
+    padding: 10px 16px;
+    font-weight: 500;
+  }
+  .data-table tbody tr {
+    border-top: 1px solid var(--hairline-soft);
+    transition: background-color 0.15s;
+  }
+  .data-table tbody tr:hover {
+    background: var(--wash);
+  }
+  .data-table td {
+    padding: 12px 16px;
+  }
+
+  .field-box {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-small);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    transition: border-color 0.15s;
+  }
+  .field-box:hover {
+    border-color: var(--hairline-strong);
+  }
+  .field-box:focus {
+    border-color: var(--color-brand);
+  }
+
+  /* Placeholder rows while a page's data is on its way. */
+  .skeleton {
+    border-radius: var(--radius-small);
+    background: linear-gradient(90deg, #e6edf6 25%, #f3f7fc 50%, #e6edf6 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    flex: none;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: spin 0.7s linear infinite;
+  }
+
+  /* ActionForm marks the button that was pressed while its server action runs. */
+  button[data-busy]::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+    flex: none;
+    vertical-align: -2px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .progress-track {
+    position: relative;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-tint);
+  }
+  .progress-bar {
+    position: absolute;
+    inset-block: 0;
+    width: 40%;
+    border-radius: 999px;
+    background: var(--color-brand);
+    animation: progress-slide 1.3s ease-in-out infinite;
+  }
+
+  .page-enter {
+    animation: page-enter 0.2s ease-out;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes progress-slide {
+  from {
+    left: -40%;
+  }
+  to {
+    left: 100%;
+  }
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0.01ms !important;
+  }
+  .page-enter,
+  .skeleton {
+    animation: none;
+  }
+  .spinner,
+  button[data-busy]::before {
+    animation-duration: 2s;
   }
 }

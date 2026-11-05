@@ -18,6 +18,14 @@ export const STATUS_LABELS: Record<string, string> = {
   rejected: 'Rejected',
 };
 
+export function stageTone(status: string): 'neutral' | 'blue' | 'teal' | 'gold' | 'danger' {
+  if (status === 'shortlisted') return 'gold';
+  if (status === 'interview') return 'blue';
+  if (status === 'selected') return 'teal';
+  if (status === 'rejected') return 'danger';
+  return 'neutral';
+}
+
 /** Same format everywhere, so a time reads the same on the server and in the browser. */
 export const formatTime = (iso: string) =>
   `${new Date(iso).toLocaleString('en-GB', {

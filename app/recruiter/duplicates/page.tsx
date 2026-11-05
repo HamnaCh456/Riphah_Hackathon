@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { AppShell } from "@/components/app-shell";
 import { ActionForm } from "@/components/matching/ActionForm";
 import { STATUS_LABELS } from "@/components/matching/labels";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import { loadDuplicates } from "@/lib/duplicates/load";
 
 import { decideDuplicateAction } from "./actions";
 
-export const metadata = { title: "Possible duplicates | Talent Intelligence" };
+export const metadata = { title: "Possible duplicates" };
 
 export default async function DuplicatesPage() {
   const profile = await requireRecruiter();
@@ -19,7 +18,7 @@ export default async function DuplicatesPage() {
 
   const person = (record: DuplicateRecord) => (
     <div className="min-w-0 break-words">
-      <p className="text-platinum">{record.name}</p>
+      <p className="font-medium text-navy">{record.name}</p>
       <p className="text-sm">{[...new Set(record.emails)].join(", ") || "No email on file"}</p>
       <p className="text-sm">{[...new Set(record.phones)].join(", ") || "No phone on file"}</p>
       <ul className="mt-2 text-sm">
@@ -45,7 +44,7 @@ export default async function DuplicatesPage() {
   );
 
   return (
-    <AppShell profile={profile}>
+    <>
       <div className="max-w-4xl">
         <h1 className="text-2xl">Possible duplicates</h1>
         <p className="mt-2 text-sm">
@@ -53,15 +52,15 @@ export default async function DuplicatesPage() {
           unless you approve it here.
         </p>
         {pairs.length === 0 ? (
-          <p className="mt-6 border-t pt-4 text-sm">No possible duplicates to review.</p>
+          <p className="card mt-5 p-5 text-sm">No possible duplicates to review.</p>
         ) : (
-          <ul className="mt-6 border-b">
+          <ul className="mt-5 space-y-3">
             {pairs.map((pair) => (
               <li
                 key={`${pair.a.candidateId}-${pair.b.candidateId}`}
-                className="border-t py-5"
+                className="card p-5"
               >
-                <p className="text-sm text-mist">Why flagged: {pair.reasons.join(" · ")}</p>
+                <p className="text-sm text-ink">Why flagged: {pair.reasons.join(" · ")}</p>
                 <ActionForm action={decideDuplicateAction}>
                   <input type="hidden" name="first" value={pair.a.candidateId} />
                   <input type="hidden" name="second" value={pair.b.candidateId} />
@@ -92,6 +91,6 @@ export default async function DuplicatesPage() {
           </ul>
         )}
       </div>
-    </AppShell>
+    </>
   );
 }

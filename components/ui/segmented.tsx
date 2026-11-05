@@ -33,10 +33,10 @@ export function Segmented<T extends string | number>({
         <label
           key={String(option.value)}
           className={cn(
-            "flex min-w-7 flex-1 cursor-pointer items-center justify-center whitespace-nowrap rounded-[4px] px-2 py-1.5 text-center font-arial text-xs transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-lavender",
+            "flex min-w-7 flex-1 cursor-pointer items-center justify-center whitespace-nowrap rounded-[4px] px-2 py-1.5 text-center font-arial text-xs transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand",
             option.value === value
-              ? "bg-kelp text-platinum shadow-[inset_0_0_0_1px_var(--hairline-strong)]"
-              : "text-silver hover:bg-wash hover:text-platinum",
+              ? "bg-brand text-white"
+              : "text-ink hover:bg-wash hover:text-brand-dark",
           )}
         >
           <input

@@ -1,22 +1,23 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 
 import {
   talentPoolAction,
   type TalentResult,
 } from "@/app/recruiter/talent-search/actions";
 import { Button } from "@/components/ui/button";
+import { useSessionState } from "@/components/viewer";
 
 import { TalentResults } from "./TalentResults";
 
 export function TalentPoolPanel({ jobId }: { jobId: string }) {
-  const [result, setResult] = useState<TalentResult | null>(null);
+  const [result, setResult] = useSessionState<TalentResult | null>(`talent-pool:${jobId}`, null);
   const [pending, startTransition] = useTransition();
 
   return (
-    <section aria-label="Past applicants" className="mt-8 border-t pt-4">
-      <h2 className="text-platinum">Past applicants who may suit this job</h2>
+    <section aria-label="Past applicants" className="card mt-5 p-5">
+      <h2 className="text-lg">Past applicants who may suit this job</h2>
       <p className="mt-1 text-sm">
         Searches people you reviewed for your other jobs in the last 180 days
         who agreed to be considered again. Nobody is contacted or added
@@ -26,7 +27,7 @@ export function TalentPoolPanel({ jobId }: { jobId: string }) {
         variant="ghost"
         size="sm"
         className="mt-3"
-        disabled={pending}
+        loading={pending}
         onClick={() =>
           startTransition(async () => setResult(await talentPoolAction(jobId)))
         }
@@ -35,7 +36,7 @@ export function TalentPoolPanel({ jobId }: { jobId: string }) {
       </Button>
       <div aria-live="polite">
         {result?.ok === false && (
-          <p role="alert" className="mt-3 text-sm text-coral">
+          <p role="alert" className="mt-3 text-sm text-danger">
             {result.message}
           </p>
         )}

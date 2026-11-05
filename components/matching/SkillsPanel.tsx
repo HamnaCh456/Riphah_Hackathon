@@ -14,23 +14,23 @@ const FIELD = 'h-10 min-w-0 flex-1 basis-40';
 
 export function SkillsPanel({ applicationId, skills }: { applicationId: string; skills: EffectiveSkill[] }) {
   return (
-    <section className="mt-8">
+    <section className="card mt-5 p-5">
       <h2 className="text-lg">Extracted skills</h2>
       {skills.length === 0 && <p className="mt-2 text-sm">No skills were extracted from this resume.</p>}
       <div className="mt-1">
         {skills.map((skill, index) => (
           <div key={`${skill.name}-${index}`} className="border-b border-hairline-soft py-3 text-sm">
-            <span className="text-platinum">{skill.name}</span>
+            <span className="font-medium text-navy">{skill.name}</span>
             <span className="text-[13px]"> · {sourceLabel(skill)}</span>
             {skill.excerpt && (
               <p className="mt-1.5 max-w-[78ch] leading-relaxed">
-                <mark className="rounded-[2px] bg-citrine px-1 py-px text-abyss [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
+                <mark className="rounded-[2px] bg-highlight px-1 py-px text-navy [-webkit-box-decoration-break:clone] [box-decoration-break:clone]">
                   {skill.excerpt}
                 </mark>
               </p>
             )}
             <details className="mt-1.5">
-              <summary className="w-fit cursor-pointer text-[13px] transition-colors hover:text-platinum">
+              <summary className="w-fit cursor-pointer text-[13px] transition-colors hover:text-brand-dark">
                 Rename or remove
               </summary>
               <ActionForm action={correctSkillAction} className="mt-2 flex max-w-2xl flex-wrap items-center gap-2" reset>

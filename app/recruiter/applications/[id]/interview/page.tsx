@@ -1,7 +1,6 @@
 // app/recruiter/applications/[id]/interview/page.tsx
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { getOwnedApplication } from '@/lib/auth/ownership';
 import { requireRecruiter } from '@/lib/auth/guards';
@@ -15,6 +14,7 @@ import { ScheduleDialog } from './ScheduleDialog';
 import styles from '@/app/recruiter/interviews/interviews.module.css';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Interview' };
 
 type Row = {
   id: string; type: string; status: 'scheduled' | 'completed' | 'cancelled'; starts_at: string; ends_at: string;
@@ -46,7 +46,7 @@ export default async function ApplicationInterviewPage({ params }: { params: Pro
   const today = toPktFields(new Date().toISOString()).date;
 
   return (
-    <AppShell profile={recruiter}><div className={styles.page}>
+    <div className={styles.page}>
       <header className={styles.header}>
         <div>
           <p className={styles.breadcrumb}>
@@ -121,6 +121,6 @@ export default async function ApplicationInterviewPage({ params }: { params: Pro
           <DecisionControl applicationId={id} candidateName={app.candidateName} />
         </section>
       )}
-    </div></AppShell>
+    </div>
   );
 }

@@ -67,7 +67,7 @@ export function LoginForm() {
           }
         />
         <FormError message={error} />
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full" loading={isLoading}>
           {isLoading ? "Logging in..." : "Log in"}
         </Button>
       </form>

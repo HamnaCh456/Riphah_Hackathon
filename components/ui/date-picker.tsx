@@ -22,14 +22,14 @@ export function DatePicker({ label, value, onChange, min }: {
       <label htmlFor={id} className="mb-1 block font-arial text-sm">{label}</label>
       <div className="flex gap-2">
         <input id={id} value={value} placeholder="YYYY-MM-DD" onChange={(e) => onChange(e.target.value)}
-          className="h-12 min-w-0 flex-1 rounded-small border bg-deep px-3 font-arial text-sm text-mist" />
+          className="h-12 min-w-0 flex-1 rounded-small border bg-surface px-3 font-arial text-sm text-ink" />
         <Popover.Root open={open} onOpenChange={setOpen}>
           <Popover.Trigger aria-label="Open calendar"
-            className="h-12 cursor-pointer rounded-small border px-3 font-arial text-sm text-mist hover:border-hairline-strong">
+            className="h-12 cursor-pointer rounded-small border px-3 font-arial text-sm text-ink hover:border-hairline-strong">
             Calendar
           </Popover.Trigger>
           <Popover.Portal>
-            <Popover.Content sideOffset={4} className="z-50 rounded-small border bg-deep p-2 text-sm text-mist">
+            <Popover.Content sideOffset={4} className="z-50 rounded-small border bg-surface p-2 text-sm text-ink">
               <DayPicker mode="single" selected={parse(value)} defaultMonth={parse(value) ?? minDate}
                 disabled={minDate ? { before: minDate } : undefined}
                 onSelect={(day) => { if (day) { onChange(format(day)); setOpen(false); } }} />

@@ -19,6 +19,7 @@ test('recruiter generates, edits, regenerates and removes questions', async ({ p
   await first.getByRole('button', { name: 'Edit' }).click();
   await page.getByLabel('Question').fill('My own question about Django?');
   await page.getByRole('button', { name: 'Save question' }).click();
+  await expect(page.getByText('Question saved')).toBeVisible();
   await expect(page.getByText('My own question about Django?')).toBeVisible();
 
   // Saved in the database, not only on screen.

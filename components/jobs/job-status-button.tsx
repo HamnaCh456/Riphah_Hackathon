@@ -25,7 +25,7 @@ export function JobStatusButton({
       type="button"
       variant="ghost"
       size="sm"
-      disabled={isPending}
+      loading={isPending}
       onClick={() =>
         startTransition(async () => {
           const result = await setJobStatus(jobId, closing ? "closed" : "open");

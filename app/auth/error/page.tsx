@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Link problem | Talent Intelligence" };
+export const metadata = { title: "Link problem" };
 
 export default function Page() {
   return (

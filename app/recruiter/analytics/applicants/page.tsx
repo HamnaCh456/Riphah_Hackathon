@@ -1,15 +1,17 @@
 // app/recruiter/analytics/applicants/page.tsx
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { AppShell } from '@/components/app-shell';
 import { computeDashboard, drillDown, stageLabel } from '@/lib/analytics/compute';
 import { loadDashboardInput } from '@/lib/analytics/load';
+import { Badge } from '@/components/ui/badge';
+import { stageTone } from '@/components/matching/labels';
 import { requireRecruiter } from '@/lib/auth/guards';
 import { db } from '@/lib/db';
 import type { ApplicationStatus } from '@/lib/pipeline/status';
 import styles from '../analytics.module.css';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Applicants' };
 
 type Row = {
   id: string; job_id: string; status: ApplicationStatus;
@@ -37,8 +39,8 @@ export default async function AnalyticsApplicantsPage({ searchParams }: {
 
   const back = input.jobFilter ? `/recruiter/analytics?job=${input.jobFilter}` : '/recruiter/analytics';
   return (
-    <AppShell profile={recruiter}><div className={styles.page}>
-      <p className={styles.breadcrumb}><Link href={back}>Analytics</Link></p>
+    <div className={styles.page}>
+      <p className={styles.breadcrumb}><Link href={back}>Dashboard</Link></p>
       <h1 className={styles.title}>{result.title}</h1>
       <p>{rows.length} {rows.length === 1 ? 'applicant' : 'applicants'}</p>
       {rows.length > 0 && (
@@ -48,12 +50,12 @@ export default async function AnalyticsApplicantsPage({ searchParams }: {
               <Link href={`/recruiter/jobs/${row.job_id}/applicants/${row.id}`} className={styles.row}>
                 <span className={styles.who}>{row.candidate.full_name}</span>
                 <span>{row.jobs.title}</span>
-                <span>{stageLabel(row.status)}</span>
+                <Badge tone={stageTone(row.status)}>{stageLabel(row.status)}</Badge>
               </Link>
             </li>
           ))}
         </ul>
       )}
-    </div></AppShell>
+    </div>
   );
 }

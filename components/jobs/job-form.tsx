@@ -47,7 +47,7 @@ const NEED = [
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={id} className="mt-1.5 font-arial text-sm text-coral">
+    <p id={id} className="mt-1.5 font-arial text-sm text-danger">
       {message}
     </p>
   );
@@ -197,7 +197,7 @@ export function JobForm({ job }: { job?: JobDetail }) {
         save();
       }}
     >
-      <div className="sticky top-0 z-10 -mx-5 -mt-6 flex flex-wrap items-center justify-between gap-3 border-b bg-abyss px-5 py-3 lg:-mx-10 lg:px-10">
+      <div className="sticky top-[var(--nav-height)] z-10 -mx-5 -mt-6 flex flex-wrap items-center justify-between gap-3 border-b bg-surface px-5 py-3 lg:-mx-10 lg:px-10">
         <div className="flex min-w-0 items-baseline gap-2">
           <Link href="/recruiter/jobs" className="textlink shrink-0 font-arial text-sm">
             Jobs
@@ -210,14 +210,14 @@ export function JobForm({ job }: { job?: JobDetail }) {
         </div>
         <div className="flex items-center gap-2">
           {job && <JobStatusButton jobId={job.id} status={job.status} />}
-          <Button type="submit" size="sm" disabled={isSaving}>
+          <Button type="submit" size="sm" loading={isSaving}>
             {isSaving ? "Saving..." : job ? "Save job" : "Post job"}
           </Button>
         </div>
       </div>
 
       <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        <div className="lg:sticky lg:top-[68px] lg:self-start">
+        <div className="lg:sticky lg:top-[calc(var(--nav-height)+68px)] lg:self-start">
           <Label htmlFor="job-description">
             Job description<span aria-hidden="true"> *</span>
           </Label>
@@ -229,7 +229,7 @@ export function JobForm({ job }: { job?: JobDetail }) {
             aria-describedby={errors.description ? "job-description-error" : undefined}
             onChange={(event) => setDescription(event.target.value)}
             placeholder="Paste the job description here"
-            className="mt-1.5 block h-[42svh] min-h-56 w-full resize-y rounded-small border border-hairline bg-deep p-3.5 font-arial text-sm leading-relaxed text-mist transition-colors placeholder:text-silver/70 hover:border-hairline-strong focus:border-silver lg:h-[calc(100svh-190px)]"
+            className="mt-1.5 block h-[42svh] min-h-56 w-full resize-y rounded-small border border-hairline bg-surface p-3.5 font-arial text-sm leading-relaxed text-ink transition-colors placeholder:text-muted/70 hover:border-hairline-strong focus:border-muted lg:h-[calc(100svh-250px)]"
           />
           <FieldError id="job-description-error" message={errors.description} />
           <Button
@@ -341,7 +341,7 @@ function RequirementRow({
           type="button"
           aria-label={`Remove ${name}`}
           onClick={onRemove}
-          className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-silver transition-colors hover:bg-wash hover:text-platinum"
+          className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-muted transition-colors hover:bg-wash hover:text-brand-dark"
         >
           ×
         </button>
@@ -360,13 +360,13 @@ function RequirementRow({
           onChange={(importance) => onChange({ importance })}
         />
         {row.quote && (
-          <p className="min-w-0 flex-1 basis-48 border-l-2 border-citrine pl-2.5 font-mono text-xs leading-relaxed">
+          <p className="min-w-0 flex-1 basis-48 border-l-2 border-gold pl-2.5 font-mono text-xs leading-relaxed">
             {row.quote}
           </p>
         )}
       </div>
       {row.verified === false && (
-        <p className="mt-1 font-arial text-sm text-coral">
+        <p className="mt-1 font-arial text-sm text-danger">
           Not found word for word in the description. Check this one.
         </p>
       )}

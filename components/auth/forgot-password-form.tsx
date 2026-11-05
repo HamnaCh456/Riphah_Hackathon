@@ -61,7 +61,7 @@ export function ForgotPasswordForm() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <FormError message={error} />
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" className="w-full" loading={isLoading}>
           {isLoading ? "Sending..." : "Send reset link"}
         </Button>
       </form>

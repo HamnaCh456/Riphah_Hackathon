@@ -1,27 +1,26 @@
 import Link from "next/link";
 
-import { AppShell } from "@/components/app-shell";
 import { MATCH_LABELS } from "@/components/matching/labels";
 import { requireRecruiter } from "@/lib/auth/guards";
 import type { ComparisonCell } from "@/lib/compare/build-comparison";
 import { loadComparison, parseSelection } from "@/lib/compare/load-comparison";
 
-export const metadata = { title: "Compare applicants | Talent Intelligence" };
+export const metadata = { title: "Compare applicants" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const headCell =
-  "sticky left-0 z-10 min-w-36 bg-abyss py-3 pr-4 text-left align-top text-sm font-normal";
+  "sticky left-0 z-10 min-w-36 bg-surface py-3 pr-4 text-left align-top text-sm font-normal";
 
 function Cell({ cell }: { cell: ComparisonCell }) {
   return (
     <>
-      <p className={`text-sm ${cell.status === "confirmed_absent" ? "text-coral" : "text-mist"}`}>
+      <p className={`text-sm ${cell.status === "confirmed_absent" ? "text-danger" : "text-ink"}`}>
         {MATCH_LABELS[cell.status].word}
       </p>
       {cell.quotes.map((quote) => (
         <blockquote
           key={quote}
-          className="mt-1 w-fit max-w-full break-words bg-[var(--color-citrine)] px-1.5 py-0.5 text-sm text-abyss"
+          className="mt-1 w-fit max-w-full break-words rounded bg-highlight px-1.5 py-0.5 text-sm text-navy"
         >
           {quote}
         </blockquote>
@@ -50,7 +49,7 @@ export default async function ComparePage({
     : ({ ok: false, message: "One of these applicants was not found for this job." } as const);
 
   return (
-    <AppShell profile={profile}>
+    <>
       <nav aria-label="Breadcrumb" className="font-arial text-[13px]">
         <Link href={`/recruiter/jobs/${jobId}/applicants`} className="textlink">
           Back to applicants
@@ -58,13 +57,13 @@ export default async function ComparePage({
       </nav>
       <h1 className="mt-1 text-2xl">Compare applicants</h1>
       {!result.ok && (
-        <p role="alert" className="mt-4 text-sm text-coral">
+        <p role="alert" className="mt-4 text-sm text-danger">
           {result.message}
         </p>
       )}
       {result.ok && (
         <div
-          className="mt-4 overflow-x-auto"
+          className="card mt-4 overflow-x-auto p-4"
           tabIndex={0}
           role="region"
           aria-label="Applicant comparison"
@@ -79,7 +78,7 @@ export default async function ComparePage({
                   <th
                     key={person.applicationId}
                     scope="col"
-                    className="py-3 pr-4 text-left font-normal text-platinum"
+                    className="py-3 pr-4 text-left font-medium text-navy"
                   >
                     <Link
                       href={`/recruiter/jobs/${jobId}/applicants/${person.applicationId}`}
@@ -98,7 +97,7 @@ export default async function ComparePage({
                 </th>
                 {result.comparison.applicants.map((person) => (
                   <td key={person.applicationId} className="py-3 pr-4 align-top text-sm">
-                    <span className="font-mono text-base tabular-nums text-lavender">
+                    <span className="text-base font-semibold tabular-nums text-brand">
                       {person.score}
                     </span>
                     {person.ceiling > person.score && ` could reach ${person.ceiling}`}
@@ -147,6 +146,6 @@ export default async function ComparePage({
           </table>
         </div>
       )}
-    </AppShell>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 // app/recruiter/interviews/page.tsx
 import Link from 'next/link';
-import { AppShell } from '@/components/app-shell';
+import { Badge } from '@/components/ui/badge';
 import { requireRecruiter } from '@/lib/auth/guards';
 import { db } from '@/lib/db';
 import { flagConflicts, type Slot } from '@/lib/interviews/conflicts';
@@ -9,6 +9,7 @@ import { formatDay, formatTimeRange } from '@/lib/interviews/time';
 import styles from './interviews.module.css';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Interviews' };
 
 type Row = {
   id: string; application_id: string; interviewer_id: string; candidate_id: string;
@@ -60,18 +61,18 @@ export default async function InterviewsPage() {
         <span className={styles.who}>{row.applications.candidate.full_name}</span>
         <span>{row.applications.jobs.title}</span>
         <span>{typeLabel(row.type)} · {row.interviewers.name}</span>
-        {row.status !== 'scheduled' && <span className={styles.status}>{row.status === 'completed' ? 'Completed' : 'Cancelled'}</span>}
+        {row.status !== 'scheduled' && <Badge tone={row.status === 'completed' ? 'teal' : 'neutral'}>{row.status === 'completed' ? 'Completed' : 'Cancelled'}</Badge>}
       </Link>
       {describe(row).map((message) => <p key={message} className={styles.conflict}>Conflict: {message}</p>)}
     </li>
   );
 
   return (
-    <AppShell profile={recruiter}><div className={styles.page}>
+    <div className={styles.page}>
       <h1 className={styles.title}>Interviews</h1>
 
       {rows.length === 0 && (
-        <p>No interviews yet. Open a shortlisted applicant to schedule one. <Link href="/recruiter/jobs">View jobs</Link></p>
+        <p>No interviews yet. Open a shortlisted applicant to schedule one. <Link href="/recruiter/jobs" className="textlink">View jobs</Link></p>
       )}
 
       {[...days.entries()].map(([day, list]) => (
@@ -87,6 +88,6 @@ export default async function InterviewsPage() {
           <ul className={styles.list}>{others.map(renderRow)}</ul>
         </section>
       )}
-    </div></AppShell>
+    </div>
   );
 }

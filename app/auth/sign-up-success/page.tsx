@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Check your email | Talent Intelligence" };
+export const metadata = { title: "Check your email" };
 
 export default function Page() {
   return (

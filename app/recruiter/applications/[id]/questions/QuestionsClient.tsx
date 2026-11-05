@@ -2,6 +2,7 @@
 'use client';
 import { useState, useTransition, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
+import { ProgressNote } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
 import { generateSetAction, regenerateOneAction, removeQuestionAction, updateQuestionAction } from './actions';
 import type { ActionResult } from './actions';
@@ -119,13 +120,14 @@ export function QuestionsClient({ applicationId, breadcrumb, canEdit, hasProject
           <h1 className={styles.title}>Interview questions</h1>
         </div>
         {canEdit && (
-          <Button variant="primary" disabled={pending}
+          <Button variant="primary" loading={pending}
             onClick={() => run(() => generateSetAction(applicationId), 'Questions ready')}>
             {pending ? 'Writing questions…' : questions.length ? 'Regenerate all' : 'Generate questions'}
           </Button>
         )}
       </header>
 
+      {pending && <ProgressNote label="Writing questions from this resume and job..." className="mb-4" />}
       {!canEdit && <p className={styles.note}>Shortlist this applicant to write or change questions.</p>}
       {canEdit && hasEdited && <p className={styles.note}>Regenerate all keeps the questions you edited.</p>}
 

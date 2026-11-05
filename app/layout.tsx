@@ -1,16 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Talent Intelligence",
+  title: { default: "Talent Intelligence", template: "%s | Talent Intelligence" },
   description:
     "Recruitment with explainable AI recommendations and human decisions.",
 };
 
+export const viewport: Viewport = { themeColor: "#0b2545" };
+
 const dmSans = DM_Sans({
   variable: "--font-matter",
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   display: "swap",
   subsets: ["latin"],
 });

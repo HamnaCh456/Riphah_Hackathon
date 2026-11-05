@@ -26,7 +26,10 @@ export function ActionForm({ action, reset, className, children }: {
         event.preventDefault();
         const form = event.currentTarget;
         // Passing the submitter keeps the clicked button's name and value (Rename or Remove).
-        const data = new FormData(form, (event.nativeEvent as SubmitEvent).submitter);
+        const submitter = (event.nativeEvent as SubmitEvent).submitter;
+        const data = new FormData(form, submitter);
+        // Shows the spinner on the button that was pressed (styled in globals.css).
+        submitter?.setAttribute('data-busy', '');
         start(async () => {
           try {
             const result = await action(data);
@@ -39,6 +42,8 @@ export function ActionForm({ action, reset, className, children }: {
             router.refresh();
           } catch {
             toast('Something went wrong. Try again.', { tone: 'error' });
+          } finally {
+            submitter?.removeAttribute('data-busy');
           }
         });
       }}
