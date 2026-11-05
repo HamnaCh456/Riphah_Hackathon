@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 const PROJECT_REF = "lbxozdqgboubbyvzgquz";
 const PASSWORD = "DemoRiphah!2026";
 const ACCOUNTS = [
-  { email: "recruiter@demo.test", role: "recruiter", fullName: "Demo Recruiter" },
+  { email: "recruiter@demo.test", role: "recruiter", fullName: "Sana Iqbal" },
   { email: "hira@demo.test", role: "candidate", fullName: "Hira Malik", resume: "hira-malik-strong.pdf" },
   { email: "omar@demo.test", role: "candidate", fullName: "Omar Tariq", resume: "omar-tariq-semantic.pdf" },
   { email: "zara@demo.test", role: "candidate", fullName: "Zara Noor", resume: "zara-noor-weak.pdf" },
