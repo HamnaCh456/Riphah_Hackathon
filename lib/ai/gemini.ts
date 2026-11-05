@@ -56,3 +56,58 @@ export async function generateJson(args: {
     cause: lastError,
   });
 }
+
+const EMBED_MODEL = "gemini-embedding-001";
+const EMBED_DIMENSIONS = 768;
+const EMBED_BATCH = 100;
+const EMBED_ATTEMPTS = 3;
+
+export type EmbedTaskType = "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY";
+
+async function embedBatch(texts: string[], taskType: EmbedTaskType): Promise<number[][]> {
+  const client = new GoogleGenAI({ apiKey: serverEnv.geminiKey });
+  const response = await client.models.embedContent({
+    model: EMBED_MODEL,
+    contents: texts,
+    config: {
+      taskType,
+      outputDimensionality: EMBED_DIMENSIONS,
+      abortSignal: AbortSignal.timeout(TIMEOUT_MS),
+    },
+  });
+  const vectors = (response.embeddings ?? []).map((embedding) => embedding.values ?? []);
+  if (
+    vectors.length !== texts.length ||
+    vectors.some((vector) => vector.length !== EMBED_DIMENSIONS)
+  ) {
+    throw new Error("Gemini returned embeddings of the wrong shape");
+  }
+  return vectors;
+}
+
+/** One 768-dimension vector per text, in order. Throws AiError if every try fails. */
+export async function embedTexts(
+  texts: string[],
+  taskType: EmbedTaskType = "RETRIEVAL_DOCUMENT",
+): Promise<number[][]> {
+  const vectors: number[][] = [];
+  for (let start = 0; start < texts.length; start += EMBED_BATCH) {
+    const batch = texts.slice(start, start + EMBED_BATCH);
+    let lastError: unknown;
+    let embedded: number[][] | null = null;
+    for (let i = 0; i < EMBED_ATTEMPTS && !embedded; i++) {
+      if (i > 0) await new Promise((done) => setTimeout(done, 1000 * 2 ** i));
+      try {
+        embedded = await embedBatch(batch, taskType);
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    if (!embedded) {
+      console.error("Gemini embedding failed", lastError);
+      throw new AiError("The AI service could not process this text", { cause: lastError });
+    }
+    vectors.push(...embedded);
+  }
+  return vectors;
+}

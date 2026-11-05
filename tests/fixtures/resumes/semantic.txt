@@ -1,0 +1,17 @@
+Omar Tariq
+omar.t@example.com
+
+Profile
+Server-side developer who cares about reliable systems.
+
+Experience
+Software Developer, Finlay Payments, 2022 - 2025
+Wrote payment services in Python with Flask.
+Tuned slow Postgres queries and managed schema migrations.
+Built container images for each service and shipped them to Kubernetes.
+
+Projects
+Invoice Tracker: a Flask service with a Postgres database.
+
+Education
+BS Software Engineering, 2022

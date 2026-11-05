@@ -1,0 +1,21 @@
+Hira Malik
+hira.malik@example.com
++92 300 1112233
+
+Summary
+Backend engineer with four years building Python web services.
+
+Skills
+Python, Django, PostgreSQL, Docker, Redis
+
+Experience
+Backend Engineer, Northwind Logistics, 2021 - 2025
+Built a shipment tracking API in Django serving 2 million requests a day.
+Designed PostgreSQL schemas and reduced slow query time by 60 percent.
+Packaged every service in Docker and ran them in production on ECS.
+
+Projects
+Clinic Booking: a Django REST API with Postgres, deployed with Docker Compose.
+
+Education
+BS Computer Science, Riphah International University, 2021

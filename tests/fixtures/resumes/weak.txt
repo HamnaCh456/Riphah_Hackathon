@@ -1,0 +1,17 @@
+Zara Noor
+zara.noor@example.com
+Gender: Female
+Marital Status: Single
+
+Summary
+Frontend developer focused on accessible interfaces. I have no hands-on Docker experience yet.
+
+Skills
+React, TypeScript, CSS, Figma
+
+Experience
+Frontend Developer, Brightly Studio, 2023 - 2025
+Built a React component library used across six products.
+
+Education
+BS Computer Science, 2023
