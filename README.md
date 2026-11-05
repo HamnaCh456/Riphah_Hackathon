@@ -89,4 +89,4 @@ Unit tests cover scoring, quote verification, redaction, skill normalization, fi
 
 - The Gemini free tier allows few requests per day per model. The client falls back to other models when one is out of quota or overloaded.
 - Interview notifications are simulated in the app, as the brief allows.
-- Duplicate detection (module 11) isn't built. It was the planned first cut.
+- Duplicate application detection isn't built. It was the planned first cut.
