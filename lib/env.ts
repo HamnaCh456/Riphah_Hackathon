@@ -15,13 +15,13 @@ function read(...names: string[]): string {
 
 export const serverEnv = {
   get supabaseUrl() {
-    return read("NEXT_PUBLIC_SUPABASE_URL", "SUPABASE-URL");
+    return read("NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL", "SUPABASE-URL");
   },
   get supabasePublishableKey() {
     return read("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
   },
   get supabaseSecretKey() {
-    return read("SUPABASE_SECRET_KEY", "ANON-API-KEY");
+    return read("SUPABASE_SECRET_KEY", "ANON_API_KEY", "ANON-API-KEY");
   },
   get geminiKey() {
     return read("GEMINI_API_KEY", "GEMINI-API-KEY");
