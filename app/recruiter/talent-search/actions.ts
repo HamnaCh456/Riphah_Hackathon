@@ -8,7 +8,7 @@ import type { RankedCandidate } from "@/lib/talent/rank";
 import { discoverTalentPool, searchTalent } from "@/lib/talent/search";
 
 export type TalentResult =
-  | { ok: true; results: RankedCandidate[] }
+  | { ok: true; results: RankedCandidate[]; partial?: RankedCandidate[] }
   | { ok: false; message: string };
 
 export async function talentPoolAction(jobId: string): Promise<TalentResult> {
@@ -34,8 +34,8 @@ export async function searchAction(query: string): Promise<TalentResult> {
     return { ok: false, message: "Enter 3 to 300 characters to search." };
   }
   try {
-    const { results } = await searchTalent(db(), profile.id, parsed.data);
-    return { ok: true, results };
+    const { results, partial } = await searchTalent(db(), profile.id, parsed.data);
+    return { ok: true, results, partial };
   } catch (error) {
     console.error("Talent search failed", error);
     return {

@@ -81,7 +81,6 @@ export default async function MyApplicationsPage() {
       {notifications.length > 0 && (
         <section aria-label="Notifications" className="mt-6 max-w-3xl border-t pt-4 text-sm">
           <h2 className="text-[15px]">Notifications</h2>
-          <p className="mt-1">Simulated in this demo. No email was sent.</p>
           <ul className="mt-2">
             {notifications.map((n) => (
               <li key={n.id} className="border-t border-hairline-soft py-2">

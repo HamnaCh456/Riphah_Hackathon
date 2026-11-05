@@ -46,6 +46,7 @@ const chunk: SearchableChunk = {
   fullName: "Noor",
   applicationId: "a1",
   jobId: "j1",
+  section: "experience",
   content: "Built Flask services",
   embedding: [1, 0],
 };

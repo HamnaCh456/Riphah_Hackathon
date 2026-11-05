@@ -20,7 +20,7 @@ export function DecisionControl({ applicationId, candidateName }: { applicationI
   const submit = () => start(async () => {
     const result = await recordDecisionAction({ applicationId, decision, reason, confirmNoFeedback: needsConfirm });
     if (result.ok) {
-      toast('Decision recorded. Candidate notified (simulated).');
+      toast('Decision recorded.');
       close();
       router.refresh();
     } else if ('needsNoFeedbackConfirm' in result) {

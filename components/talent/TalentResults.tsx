@@ -15,7 +15,10 @@ export function TalentResults({ results }: { results: RankedCandidate[] }) {
           </Link>
           {person.evidence.map((item) => (
             <div key={item.facet} className="mt-3">
-              <p className="text-sm">{item.facet}</p>
+              <p className="text-sm">
+                {item.facet}
+                {item.note && <span className="text-mist"> · {item.note}</span>}
+              </p>
               <blockquote className="mt-1 w-fit max-w-full whitespace-pre-line break-words bg-[var(--color-citrine)] px-1.5 py-0.5 text-sm text-abyss">
                 {item.excerpt}
               </blockquote>

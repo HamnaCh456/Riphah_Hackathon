@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { AccountRows, AppShell } from '@/components/app-shell';
 import { computeDashboard, stageLabel } from '@/lib/analytics/compute';
-import { formatDuration, formatPercent } from '@/lib/analytics/format';
 import { loadDashboardInput } from '@/lib/analytics/load';
 import { requireRecruiter } from '@/lib/auth/guards';
 import { BarList } from './BarList';
@@ -34,19 +33,11 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   }
 
   const tiles = [
-    { label: 'Active jobs', value: String(d.activeJobs), href: '/recruiter/jobs' },
+    { label: 'Job vacancies', value: String(d.activeJobs), href: '/recruiter/jobs' },
     { label: 'Applications', value: String(d.applications.length), href: drill('applications') },
     { label: 'Shortlisted', value: String(d.shortlisted.length), href: drill('shortlisted') },
     { label: 'Pending reviews', value: String(d.pending.length), href: drill('pending') },
     { label: 'Upcoming interviews', value: String(d.upcomingInterviews), href: '/recruiter/interviews' },
-    {
-      label: 'Shortlist rate', value: formatPercent(d.shortlistRate.percent), href: drill('shortlisted'),
-      note: d.shortlistRate.denominator ? `${d.shortlistRate.numerator} of ${d.shortlistRate.denominator}` : undefined,
-    },
-    {
-      label: 'Avg. processing time', value: formatDuration(d.avgProcessing.ms), href: drill('decided'),
-      note: d.avgProcessing.decided.length ? `Application to first decision, ${d.avgProcessing.decided.length} decided` : 'Application to first decision',
-    },
   ];
 
   return (
@@ -63,7 +54,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
             <Link href={tile.href} className={styles.tile}>
               <span className={styles.figure} data-testid={`tile-${tile.label}`}>{tile.value}</span>
               <span className={styles.tileLabel}>{tile.label}</span>
-              {tile.note && <span className={styles.tileNote}>{tile.note}</span>}
             </Link>
           </li>
         ))}

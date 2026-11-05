@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { requiredRole, roleHome, safeNextPath } from "./access";
+import {
+  loginLanding,
+  requiredRole,
+  roleHome,
+  safeNextPath,
+  signUpLanding,
+} from "./access";
+
+describe("landing pages", () => {
+  it("sends people to jobs after logging in", () => {
+    expect(loginLanding("candidate")).toBe("/candidate/jobs");
+    expect(loginLanding("recruiter")).toBe("/recruiter/jobs");
+  });
+
+  it("sends new candidates to upload a resume, and new recruiters to jobs", () => {
+    expect(signUpLanding("candidate")).toBe("/candidate/resume");
+    expect(signUpLanding("recruiter")).toBe("/recruiter/jobs");
+  });
+});
 
 describe("requiredRole", () => {
   it("protects the recruiter and candidate areas", () => {

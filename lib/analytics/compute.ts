@@ -20,7 +20,6 @@ export type SkillGap = {
 
 const STAGES: ApplicationStatus[] = ['submitted', 'parsed', 'assessed', 'in_review', 'shortlisted', 'interview', 'selected', 'rejected'];
 const PENDING: ApplicationStatus[] = ['submitted', 'parsed', 'assessed', 'in_review'];
-const DECISIONS = new Set(['shortlisted', 'rejected']);
 const MAX_SKILL_GAPS = 8;
 
 export function computeDashboard(input: DashboardInput) {
@@ -32,19 +31,6 @@ export function computeDashboard(input: DashboardInput) {
   const now = Date.parse(input.now);
 
   const shortlisted = [...new Set(events.filter((e) => e.toStatus === 'shortlisted').map((e) => e.applicationId))];
-
-  const firstDecision = new Map<string, number>();
-  for (const event of events) {
-    if (!DECISIONS.has(event.toStatus)) continue;
-    const at = Date.parse(event.createdAt);
-    const current = firstDecision.get(event.applicationId);
-    if (current === undefined || at < current) firstDecision.set(event.applicationId, at);
-  }
-  const durations = applications.flatMap((a) => {
-    const at = firstDecision.get(a.id);
-    const ms = at === undefined ? -1 : at - Date.parse(a.createdAt);
-    return ms >= 0 ? [{ id: a.id, ms }] : [];
-  });
 
   const gapsBySkill = new Map<string, SkillGap>();
   for (const row of input.skillResults) {
@@ -66,15 +52,6 @@ export function computeDashboard(input: DashboardInput) {
     pending: applications.filter((a) => PENDING.includes(a.status)).map((a) => a.id),
     upcomingInterviews: input.interviews.filter((i) =>
       appIds.has(i.applicationId) && i.status === 'scheduled' && Date.parse(i.endsAt) >= now).length,
-    shortlistRate: {
-      numerator: shortlisted.length,
-      denominator: applications.length,
-      percent: applications.length ? Math.round((shortlisted.length / applications.length) * 100) : null,
-    },
-    avgProcessing: {
-      ms: durations.length ? durations.reduce((sum, d) => sum + d.ms, 0) / durations.length : null,
-      decided: durations.map((d) => d.id),
-    },
     byJob: jobs
       .map((j) => ({
         id: j.id, label: j.title,
@@ -105,7 +82,6 @@ export function drillDown(dashboard: Dashboard, metric: string): { title: string
   if (metric === 'applications') return { title: 'Applications', ids: dashboard.applications };
   if (metric === 'shortlisted') return { title: 'Shortlisted', ids: dashboard.shortlisted };
   if (metric === 'pending') return { title: 'Pending reviews', ids: dashboard.pending };
-  if (metric === 'decided') return { title: 'Applications with a decision', ids: dashboard.avgProcessing.decided };
 
   const [kind, value] = [metric.slice(0, metric.indexOf(':')), metric.slice(metric.indexOf(':') + 1)];
   if (kind === 'stage') {

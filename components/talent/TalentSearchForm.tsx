@@ -13,12 +13,18 @@ import { TalentResults } from "./TalentResults";
 export function TalentSearchForm() {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<TalentResult | null>(null);
+  const [showPartial, setShowPartial] = useState(false);
   const [pending, startTransition] = useTransition();
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    startTransition(async () => setResult(await searchAction(query)));
+    startTransition(async () => {
+      setResult(await searchAction(query));
+      setShowPartial(false);
+    });
   }
+
+  const partial = (result?.ok && result.partial) || [];
 
   return (
     <>
@@ -46,12 +52,28 @@ export function TalentSearchForm() {
         )}
         {result?.ok && result.results.length === 0 && (
           <p className="mt-4 text-sm">
-            No resumes matched. Try describing the skill or work in different
-            words.
+            {partial.length > 0
+              ? "No resume shows everything you asked for."
+              : "No resumes matched. Try describing the skill or work in different words."}
           </p>
         )}
         {result?.ok && result.results.length > 0 && (
           <TalentResults results={result.results} />
+        )}
+        {partial.length > 0 && !showPartial && (
+          <button
+            type="button"
+            onClick={() => setShowPartial(true)}
+            className="textlink mt-4 font-arial text-sm"
+          >
+            Show {partial.length} partial {partial.length === 1 ? "match" : "matches"}
+          </button>
+        )}
+        {showPartial && (
+          <>
+            <h2 className="mt-6 text-[15px]">Partial matches</h2>
+            <TalentResults results={partial} />
+          </>
         )}
       </div>
     </>

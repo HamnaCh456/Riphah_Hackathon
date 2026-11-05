@@ -8,6 +8,7 @@ export type SearchableChunk = {
   fullName: string | null;
   applicationId: string;
   jobId: string;
+  section: string;
   content: string;
   embedding: number[];
 };

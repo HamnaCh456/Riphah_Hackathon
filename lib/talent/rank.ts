@@ -15,7 +15,7 @@ export type RankedCandidate = {
   fullName: string | null;
   applicationId: string;
   jobId: string;
-  evidence: { facet: string; excerpt: string; similarity: number }[];
+  evidence: { facet: string; excerpt: string; similarity: number; note?: string }[];
   /** No evidence was found for these. That doesn't mean the person lacks them. */
   missingFacets: string[];
 };

@@ -5,6 +5,16 @@ export function roleHome(role: Role): string {
   return role === "recruiter" ? "/recruiter" : "/candidate";
 }
 
+/** Where someone lands after logging in. */
+export function loginLanding(role: Role): string {
+  return role === "recruiter" ? "/recruiter/jobs" : "/candidate/jobs";
+}
+
+/** Where someone lands after signing up: a new candidate needs a resume before they can apply. */
+export function signUpLanding(role: Role): string {
+  return role === "recruiter" ? "/recruiter/jobs" : "/candidate/resume";
+}
+
 /** The role a path belongs to, or null if any signed-in user may open it. */
 export function requiredRole(pathname: string): Role | null {
   return (

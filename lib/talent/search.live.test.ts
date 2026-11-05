@@ -134,6 +134,30 @@ describe.runIf(LIVE)("talent search with real AI and data", () => {
     expect(found!.evidence.some((e) => /Flask|FastAPI/.test(e.excerpt))).toBe(true);
   }, 60_000);
 
+  it("filters on years of experience", async () => {
+    const { results } = await search.searchTalent(admin as never, recruiter, "5+ years of experience");
+    const ids = results.map((r) => r.candidateId);
+    expect(ids).toContain(unrelated); // 2018 - 2024
+    expect(ids).not.toContain(different); // 2021 - 2024
+  }, 60_000);
+
+  it("finds experience in a field and leaves out everyone else", async () => {
+    const logistics = await search.searchTalent(admin as never, recruiter, "experience in logistics software");
+    expect(logistics.results.map((r) => r.candidateId)).toEqual([different]);
+    const marketing = await search.searchTalent(admin as never, recruiter, "marketing managers");
+    expect(marketing.results.map((r) => r.candidateId)).toEqual([unrelated]);
+  }, 60_000);
+
+  it("shows nobody when years of a skill aren't met", async () => {
+    const { results } = await search.searchTalent(admin as never, recruiter, "10 years of Python development");
+    expect(results).toEqual([]);
+  }, 60_000);
+
+  it("shows nobody for work no one has done", async () => {
+    const { results, partial } = await search.searchTalent(admin as never, recruiter, "registered nurse with ICU experience");
+    expect([...results, ...partial]).toEqual([]);
+  }, 60_000);
+
   it("leaves out the unrelated candidate", async () => {
     const { results } = await search.searchTalent(admin as never, recruiter, QUERY);
     expect(results.map((r) => r.candidateId)).not.toContain(unrelated);

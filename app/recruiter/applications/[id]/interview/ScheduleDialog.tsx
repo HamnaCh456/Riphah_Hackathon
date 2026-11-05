@@ -49,7 +49,7 @@ export function ScheduleDialog({ applicationId, interviewers, initial, trigger, 
       durationMinutes: Number(duration), acknowledgeConflict,
     });
     if (result.ok) {
-      toast(initial ? 'Interview moved. Candidate notified (simulated).' : 'Interview scheduled. Candidate notified (simulated).');
+      toast(initial ? 'Interview moved.' : 'Interview scheduled.');
       setOpen(false); setConflicts([]); router.refresh();
     } else if ('conflicts' in result) {
       setConflicts(result.conflicts);

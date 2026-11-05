@@ -19,7 +19,7 @@ export function CancelInterview({ interviewId }: { interviewId: string }) {
       <Button variant="ghost" disabled={pending} onClick={() => start(async () => {
         const result = await cancelInterviewAction(interviewId);
         if (!result.ok) { toast(result.error, { tone: 'error' }); return; }
-        toast('Interview cancelled. Candidate notified (simulated).');
+        toast('Interview cancelled.');
         router.refresh();
       })}>Yes, cancel it</Button>
       <Button variant="ghost" disabled={pending} onClick={() => setConfirming(false)}>Keep it</Button>

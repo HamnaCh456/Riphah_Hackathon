@@ -57,42 +57,6 @@ describe('computeDashboard: tiles', () => {
   });
 });
 
-describe('computeDashboard: rates', () => {
-  it('works out the shortlist rate', () => {
-    expect(computeDashboard(input()).shortlistRate).toEqual({ numerator: 1, denominator: 4, percent: 25 });
-  });
-
-  it('gives no rate rather than 0% when there are no applications', () => {
-    const d = computeDashboard(input({ applications: [], events: [], skillResults: [] }));
-    expect(d.shortlistRate.percent).toBeNull();
-  });
-
-  it('averages time to first decision across decided applications', () => {
-    // a1: 08:00 → 10:00 = 2h. a3: 09:00 → 13:00 = 4h. Average 3h.
-    const d = computeDashboard(input());
-    expect(d.avgProcessing).toEqual({ ms: 3 * 3_600_000, decided: ['a1', 'a3'] });
-  });
-
-  it('uses the first decision, ignoring later ones', () => {
-    const d = computeDashboard(input({ events: [
-      { applicationId: 'a1', toStatus: 'shortlisted', createdAt: '2026-11-10T09:00:00Z' },
-      { applicationId: 'a1', toStatus: 'rejected', createdAt: '2026-11-10T20:00:00Z' },
-    ] }));
-    expect(d.avgProcessing.ms).toBe(3_600_000);
-  });
-
-  it('gives no average when nothing is decided', () => {
-    expect(computeDashboard(input({ events: [] })).avgProcessing).toEqual({ ms: null, decided: [] });
-  });
-
-  it('ignores a bad event dated before the application', () => {
-    const d = computeDashboard(input({ events: [
-      { applicationId: 'a1', toStatus: 'shortlisted', createdAt: '2026-11-01T00:00:00Z' },
-    ] }));
-    expect(d.avgProcessing.ms).toBeNull();
-  });
-});
-
 describe('computeDashboard: charts', () => {
   const d = computeDashboard(input());
 

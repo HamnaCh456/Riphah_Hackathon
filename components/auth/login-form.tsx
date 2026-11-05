@@ -33,7 +33,7 @@ export function LoginForm() {
       setIsLoading(false);
       return;
     }
-    // The home route sends each role to its own dashboard.
+    // The home route sends each role to its own jobs page.
     router.push("/");
     router.refresh();
   };

@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { AuthField, FormError } from "@/components/auth/auth-field";
 import { Button } from "@/components/ui/button";
-import { ROLES, type Role } from "@/lib/auth/access";
+import { ROLES, signUpLanding, type Role } from "@/lib/auth/access";
 import { firstError, signUpSchema } from "@/lib/auth/validation";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -45,7 +45,7 @@ export function SignUpForm() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${window.location.origin}${signUpLanding(parsed.data.role)}`,
         data: { role: parsed.data.role, full_name: parsed.data.fullName },
       },
     });
@@ -65,7 +65,7 @@ export function SignUpForm() {
       return;
     }
     // No session means email confirmation is switched on for this project.
-    router.push(data.session ? "/" : "/auth/sign-up-success");
+    router.push(data.session ? signUpLanding(parsed.data.role) : "/auth/sign-up-success");
     router.refresh();
   };
 
