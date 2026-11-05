@@ -50,7 +50,7 @@ Browser
   -> Next.js App Router (Vercel): pages, server actions, proxy.ts (role checks, rate limit)
        -> Supabase Auth: sessions, secure password handling
        -> Supabase Postgres + pgvector: row level security, audit trail, resume chunks
-       -> Gemini: extraction, assessment and question generation; gemini-embedding-001 for vectors
+       -> Gemini, then OpenAI gpt-4o-mini if Gemini fails: extraction, assessment and question generation; gemini-embedding-001 for vectors
 ```
 
 | Folder | Purpose |
@@ -67,7 +67,7 @@ Browser
 
 - Passwords and sessions are handled by Supabase Auth. Inputs are validated with Zod on the server.
 - Roles are checked in `proxy.ts` and again on every page and action.
-- The secret key and Gemini key are server-only. Secret-key queries check ownership first.
+- The secret key and AI keys are server-only. Secret-key queries check ownership first.
 - Uploads are checked by their real file bytes, not their extension.
 - Resume text is treated as data: instructions hidden in a resume are ignored, and a test covers this.
 - Security headers and a per-client limit on POST requests. The limit is per server instance.
@@ -87,6 +87,6 @@ Unit tests cover scoring, quote verification, redaction, skill normalization, fi
 
 ## Known limits
 
-- The Gemini free tier allows few requests per day per model. The client falls back to other models when one is out of quota or overloaded.
+- The Gemini free tier allows few requests per day per model. The client falls back to other Gemini models when one is out of quota or overloaded, then to OpenAI gpt-4o-mini, at about $0.0003 per assessment. Vectors stay on Gemini, because vectors from two models cannot be compared.
 - Interview notifications are simulated in the app, as the brief allows.
 - Duplicate application detection isn't built. It was the planned first cut.

@@ -8,8 +8,8 @@ import type { Page } from "@playwright/test";
 type Status = "submitted" | "parsed" | "assessed" | "in_review" | "shortlisted" | "interview" | "selected" | "rejected";
 
 const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env["SUPABASE-URL"]!,
-  process.env.SUPABASE_SECRET_KEY ?? process.env["ANON-API-KEY"]!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY ?? process.env.ANON_API_KEY!,
   { auth: { persistSession: false } },
 );
 

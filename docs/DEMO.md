@@ -68,5 +68,5 @@ For each candidate, in the private window:
 ## Before the real demo
 
 - Resumes for all three demo candidates are already parsed. Skip the upload to save AI quota, unless you want to show it.
-- The Gemini free tier allows few requests per day per model. Don't rehearse again before the demo: one run uses about 6 calls.
+- The Gemini free tier allows few requests per day per model. If they all run out, the app falls back to OpenAI automatically, at about $0.0003 per assessment. Embeddings still need Gemini.
 - "Run fairness check" uses more AI calls and hasn't been run live, so leave it out of the main demo.

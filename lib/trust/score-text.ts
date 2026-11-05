@@ -58,6 +58,7 @@ export async function scoreRedactedText(
       system: ASSESSMENT_SYSTEM_PROMPT,
       prompt: buildPrompt(jobTitle, items),
       responseSchema: assessmentResponseSchema,
+      singleModel: true,
     }),
   );
   const assessed = items.map(({ requirement, chunks }) =>

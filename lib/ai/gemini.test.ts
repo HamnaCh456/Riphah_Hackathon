@@ -1,12 +1,14 @@
 import { beforeEach, expect, it, vi } from "vitest";
 
 const generateContent = vi.hoisted(() => vi.fn());
+const generateOpenAiJson = vi.hoisted(() => vi.fn());
 
 vi.mock("@google/genai", () => ({
   GoogleGenAI: class {
     models = { generateContent };
   },
 }));
+vi.mock("./openai", () => ({ generateOpenAiJson, OPENAI_MODEL: "gpt-4o-mini" }));
 vi.mock("@/lib/env", () => ({ serverEnv: { geminiKey: "test" } }));
 
 import { AiError, generateJson } from "./gemini";
@@ -16,6 +18,7 @@ const modelsTried = () => generateContent.mock.calls.map(([call]) => call.model)
 
 beforeEach(() => {
   generateContent.mockReset();
+  generateOpenAiJson.mockReset();
   vi.spyOn(console, "warn").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -53,8 +56,28 @@ it("sends a thinking budget only to models that accept one", async () => {
   expect(newer.config.thinkingConfig).toBeUndefined();
 });
 
+it("doesn't call paid OpenAI while a Gemini model works", async () => {
+  generateContent.mockResolvedValue({ text: '{"ok":true}' });
+  await generateJson(ARGS);
+  expect(generateOpenAiJson).not.toHaveBeenCalled();
+});
+
+it("falls back to OpenAI when every Gemini model fails", async () => {
+  generateContent.mockRejectedValue(new Error("429"));
+  generateOpenAiJson.mockResolvedValue({ from: "openai" });
+  await expect(generateJson(ARGS)).resolves.toEqual({ from: "openai" });
+  expect(generateContent).toHaveBeenCalledTimes(3);
+});
+
 it("throws an AiError rather than inventing a result when every model fails", async () => {
   generateContent.mockRejectedValue(new Error("429"));
+  generateOpenAiJson.mockRejectedValue(new Error("500"));
   await expect(generateJson(ARGS)).rejects.toBeInstanceOf(AiError);
-  expect(generateContent).toHaveBeenCalledTimes(3);
+});
+
+it("never switches model when results will be compared", async () => {
+  generateContent.mockRejectedValue(new Error("429"));
+  await expect(generateJson({ ...ARGS, singleModel: true })).rejects.toBeInstanceOf(AiError);
+  expect(generateContent).toHaveBeenCalledTimes(1);
+  expect(generateOpenAiJson).not.toHaveBeenCalled();
 });

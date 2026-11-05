@@ -12,8 +12,8 @@ import type { Requirement, RetrievedChunk, Section } from './types';
 import { normalizeForMatch, verifyRequirement } from './verify';
 
 export const TOP_K = 5;
-// generateJson may fall back to another model, so this names the family, not one model.
-const ASSESS_MODEL = 'gemini-flash';
+// generateJson may fall back to another model, so this doesn't name just one.
+const ASSESS_MODEL = 'gemini-flash-or-gpt-4o-mini';
 const RUNNING_EXPIRES_MS = 120_000;
 const AI_RETRY_DELAYS_MS = [3_000, 8_000];
 const UNIQUE_VIOLATION = '23505';

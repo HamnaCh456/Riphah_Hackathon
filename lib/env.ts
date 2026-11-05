@@ -26,4 +26,7 @@ export const serverEnv = {
   get geminiKey() {
     return read("GEMINI_API_KEY", "GEMINI-API-KEY");
   },
+  get openaiKey() {
+    return read("OPENAI_API_KEY", "OPENAI-API-KEY");
+  },
 };

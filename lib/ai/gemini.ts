@@ -4,11 +4,14 @@ import { GoogleGenAI } from "@google/genai";
 
 import { serverEnv } from "@/lib/env";
 
+import { generateOpenAiJson, OPENAI_MODEL } from "./openai";
+
 // Tried in order. Quotas are per model, so when one runs out or is overloaded the next still works.
 const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3.5-flash-lite"];
 const TIMEOUT_MS = 25_000;
-// Below the 60-second page limit, so the caller can still show a retry message.
-const TOTAL_BUDGET_MS = 50_000;
+// Together these stay below the 60-second page limit, so the caller can still show a retry message.
+const GEMINI_BUDGET_MS = 30_000;
+const OPENAI_TIMEOUT_MS = 25_000;
 
 /** The AI could not give a usable answer. Callers show a retry, never a made-up result. */
 export class AiError extends Error {
@@ -46,28 +49,45 @@ async function attempt(
   return JSON.parse(response.text ?? "");
 }
 
-/** Calls Gemini in JSON mode and returns the parsed answer. Throws AiError if every try fails. */
+/**
+ * Returns the parsed JSON answer, trying the free Gemini models first and paid OpenAI last.
+ * Set singleModel when results will be compared, because a model change would look like a real
+ * difference. Throws AiError if every try fails.
+ */
 export async function generateJson(args: {
   system: string;
   prompt: string;
   responseSchema: object;
+  singleModel?: boolean;
 }): Promise<unknown> {
-  const deadline = Date.now() + TOTAL_BUDGET_MS;
-  let lastError: unknown;
+  if (args.singleModel) {
+    try {
+      return await attempt(MODELS[1], TIMEOUT_MS, args);
+    } catch (error) {
+      console.error(`Gemini model ${MODELS[1]} failed`, error);
+      throw new AiError("The AI service did not return a usable answer", { cause: error });
+    }
+  }
+
+  const deadline = Date.now() + GEMINI_BUDGET_MS;
   for (const model of MODELS) {
     const remaining = deadline - Date.now();
     if (remaining <= 0) break;
     try {
       return await attempt(model, Math.min(TIMEOUT_MS, remaining), args);
     } catch (error) {
-      lastError = error;
-      console.warn(`Gemini model ${model} failed, trying the next one`);
+      console.warn(`Gemini model ${model} failed, trying the next one`, error);
     }
   }
-  console.error("Gemini request failed", lastError);
-  throw new AiError("The AI service did not return a usable answer", {
-    cause: lastError,
-  });
+
+  try {
+    const answer = await generateOpenAiJson(args, OPENAI_TIMEOUT_MS);
+    console.warn(`Answered by the ${OPENAI_MODEL} fallback`);
+    return answer;
+  } catch (error) {
+    console.error("Every AI model failed", error);
+    throw new AiError("The AI service did not return a usable answer", { cause: error });
+  }
 }
 
 const EMBED_MODEL = "gemini-embedding-001";
