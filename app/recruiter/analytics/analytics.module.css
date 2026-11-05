@@ -1,0 +1,45 @@
+/* app/recruiter/analytics/analytics.module.css */
+.page { font-size: 14px; color: var(--color-silver-mist); }
+.header { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--spacing-16); flex-wrap: wrap; margin-bottom: var(--spacing-16); }
+.title { margin: 0; font: 500 24px/1.3 var(--font-matter); letter-spacing: -.02em; color: var(--color-platinum); }
+.filter { min-width: 240px; }
+.section { margin: 0 0 var(--spacing-12); font: 500 12px var(--font-matter); letter-spacing: .12em; text-transform: uppercase; color: var(--color-silver-mist); }
+
+/* The 1px gap is the rule: the container paints through it (DESIGN.md §5.6). */
+.tiles { list-style: none; margin: 0 0 var(--spacing-32); padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--hairline); border-block: 1px solid var(--hairline); }
+.tiles li { background: var(--color-liquid-abyss); }
+.tile { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: var(--spacing-16); color: inherit; text-decoration: none; }
+.tile:hover { background: var(--wash); }
+.tile:hover .tileLabel { color: var(--color-platinum); }
+.figure { font: 500 28px/1.1 var(--font-matter); letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--color-lavender-phosphor); }
+.tileLabel { font-size: 13px; color: var(--color-liquid-mist); }
+.tileNote { font-size: 12px; color: var(--color-silver-mist); }
+
+.account { margin-top: var(--spacing-32); }
+.charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--spacing-32); align-items: start; }
+.bars { list-style: none; margin: 0; padding: 0; }
+.bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'label value' 'track track'; gap: 4px var(--spacing-12); padding: 8px; border-top: 1px solid var(--hairline-soft); color: inherit; text-decoration: none; }
+.bar:hover { background: var(--wash); }
+.bar:hover .barLabel { color: var(--color-platinum); }
+.barLabel { grid-area: label; overflow-wrap: anywhere; color: var(--color-liquid-mist); }
+.barValue { grid-area: value; font: 400 13px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--color-liquid-mist); text-align: right; }
+.barTrack { grid-area: track; display: block; height: 8px; }
+.barFill { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--viz-cited); }
+
+.list { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--hairline-soft); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 180px; gap: var(--spacing-16); padding: var(--spacing-12); border-top: 1px solid var(--hairline-soft); color: inherit; text-decoration: none; }
+.row:hover { background: var(--wash); }
+.who { color: var(--color-platinum); }
+.breadcrumb { margin: 0 0 4px; font: 400 14px var(--font-arial); }
+.breadcrumb a { color: var(--color-silver-mist); }
+.breadcrumb a:hover { color: var(--color-platinum); }
+
+@media (max-width: 1240px) {
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .charts { grid-template-columns: minmax(0, 1fr); }
+  .row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
