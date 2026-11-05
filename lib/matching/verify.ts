@@ -44,13 +44,19 @@ export function verifyRequirement(
       explanation: llm.explanation };
   }
 
-  const evidence: EvidenceRow[] = llm.evidence.map((e) => {
-    const chunk = chunks.find((c) => c.id === e.chunk_id);
+  const check = (rawQuote: string, chunkId: string): EvidenceRow => {
+    const chunk = chunks.find((c) => c.id === chunkId);
     // The prompt escapes "<" in resume text, so a faithful quote can come back escaped.
-    const quote = normalizeForMatch(e.quote.replace(/&lt;/g, '<'));
+    const quote = normalizeForMatch(rawQuote.replace(/&lt;/g, '<'));
     const verified = !!chunk && quote.length >= 2 && normalizeForMatch(chunk.content).includes(quote);
-    return { chunkId: chunk?.id ?? null, quote: e.quote, section: chunk?.section ?? null,
+    return { chunkId: chunk?.id ?? null, quote: rawQuote, section: chunk?.section ?? null,
       verified, similarity: chunk?.similarity ?? null };
+  };
+  const evidence: EvidenceRow[] = llm.evidence.flatMap((e) => {
+    const whole = check(e.quote, e.chunk_id);
+    const lines = e.quote.split('\n').map((line) => line.trim()).filter(Boolean);
+    // The AI sometimes joins separate lines into one quote, so each line is checked by itself.
+    return whole.verified || lines.length < 2 ? [whole] : lines.map((line) => check(line, e.chunk_id));
   });
   const real = evidence.filter((e) => e.verified);
 

@@ -34,6 +34,28 @@ describe('verifyRequirement', () => {
     expect(out).toMatchObject({ status: 'matched', depth: 'listed' });
   });
 
+  it('checks each line when the AI joins separate lines into one quote', () => {
+    const jobs: RetrievedChunk[] = [
+      { id: 'exp', section: 'experience', content: 'Developer, Finlay, 2022 - 2025\n- Wrote services.\nAssociate, Harbour, 2021 - 2022', similarity: 0.6 },
+    ];
+    const out = verifyRequirement(req, llm({ evidence: [
+      { chunk_id: 'exp', quote: 'Developer, Finlay, 2022 - 2025\nAssociate, Harbour, 2021 - 2022' },
+    ] }), jobs);
+    expect(out).toMatchObject({ status: 'matched', depth: 'demonstrated', needsReview: false });
+    expect(out.evidence.map((e) => e.quote)).toEqual(['Developer, Finlay, 2022 - 2025', 'Associate, Harbour, 2021 - 2022']);
+  });
+
+  it('still flags an invented line inside a joined quote', () => {
+    const jobs: RetrievedChunk[] = [
+      { id: 'exp', section: 'experience', content: 'Developer, Finlay, 2022 - 2025', similarity: 0.6 },
+    ];
+    const out = verifyRequirement(req, llm({ evidence: [
+      { chunk_id: 'exp', quote: 'Developer, Finlay, 2022 - 2025\nLead Architect, Google, 2010 - 2022' },
+    ] }), jobs);
+    expect(out.needsReview).toBe(true);
+    expect(out.evidence.map((e) => e.verified)).toEqual([true, false]);
+  });
+
   it('adds the experience line that shows the skill being used', () => {
     const withUse: RetrievedChunk[] = [
       { id: 'skl', section: 'skills', content: 'Python, Django', similarity: 0.7 },
