@@ -62,7 +62,7 @@ export function buildPrompt(jobTitle: string, items: PromptItem[]): string {
 Assess each requirement using only the excerpts listed under it. Return one result per requirement.
 
 Statuses:
-- matched: the excerpt shows the requirement, including in different words. "Postgres" or "tuned PL/pgSQL queries" supports PostgreSQL. "Built container images and deployed them to ECS" supports Docker.
+- matched: the excerpt shows the requirement, including in different words. "Postgres" or "tuned PL/pgSQL queries" supports PostgreSQL. "Built container images and deployed them to ECS" supports Docker. Using a framework shows the language it is written in, so Flask or FastAPI supports Python.
 - partial: a closely related skill, not the requirement itself. MySQL for PostgreSQL. Flask for Django.
 - no_evidence: the excerpts do not show it. This is the normal result when something is not mentioned.
 - confirmed_absent: an excerpt explicitly says the person does not have it, such as "no hands-on Docker experience". Never use confirmed_absent because something is not mentioned.
