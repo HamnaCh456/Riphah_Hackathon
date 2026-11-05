@@ -11,6 +11,7 @@ const LINKS: Record<Role, { href: string; label: string }[]> = {
     { href: "/recruiter", label: "Dashboard" },
     { href: "/recruiter/jobs", label: "Jobs" },
     { href: "/recruiter/talent-search", label: "Talent search" },
+    { href: "/recruiter/duplicates", label: "Duplicates" },
     { href: "/recruiter/interviews", label: "Interviews" },
   ],
   candidate: [
