@@ -30,7 +30,9 @@ order. Read it before planning or building a module.
 
 ## Current state
 
-There is no application code yet, so there are no build, lint or test commands. Add them here when the first module sets up its tooling.
+Modules 1-10 and 12 are built and live at https://riphah-recruitment.vercel.app. Module 11 (comparison and duplicates) isn't built.
+
+Commands: `npm run dev`, `npm test`, `npm run typecheck`, `npm run build`. `npm run lint` currently fails on its config.
 
 ## Open decisions
 
@@ -52,8 +54,8 @@ When a module is done, commit it and push it to https://github.com/HamnaCh456/Ri
 
 ## Configuration
 
-- `.env` holds `SUPABASE-URL`, `ANON-API-KEY` and `GEMINI-API-KEY`. The names contain hyphens, so they can't be used as shell variables; read them from the file by their exact names.
-- `ANON-API-KEY` holds a `sb_secret_` key, which bypasses database access rules. Keep it server-only and never send it to the browser.
+- `.env` holds `SUPABASE_URL`, `ANON_API_KEY` and `GEMINI_API_KEY`.
+- `ANON_API_KEY` holds a `sb_secret_` key, which bypasses database access rules. Keep it server-only and never send it to the browser.
 - `.mcp.json` connects the Supabase MCP server to project `lbxozdqgboubbyvzgquz`. Other projects on this machine use different Supabase projects, so check the connected project before any schema change or data write.
 
 ## DESIGN.md

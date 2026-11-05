@@ -23,9 +23,9 @@ function readEnv() {
 }
 
 const env = readEnv();
-const url = env["SUPABASE-URL"];
-const key = env["ANON-API-KEY"];
-if (!url || !key) throw new Error("SUPABASE-URL and ANON-API-KEY must both be set in .env");
+const url = env.SUPABASE_URL;
+const key = env.ANON_API_KEY;
+if (!url || !key) throw new Error("SUPABASE_URL and ANON_API_KEY must both be set in .env");
 if (new URL(url).hostname !== `${PROJECT_REF}.supabase.co`) {
   throw new Error(`Refusing to run: .env points at ${url}, not project ${PROJECT_REF}`);
 }

@@ -43,15 +43,15 @@ For each candidate, in the private window:
 
 ## 4. Recruiter shortlists one applicant
 
-1. Open Hira at `/recruiter/applications/<application id>` and shortlist her.
+1. Click Hira in the applicants table, then press Shortlist.
 2. **Show:** the change appears in the history.
 3. **Optional:** in the private window, sign in as Hira. She sees her status but no score, gaps or notes.
 
 ## 5. Interview questions and scheduling
 
-1. From Hira's application, open `/recruiter/applications/<application id>/questions` and generate questions.
+1. On Hira's page, click Interview questions, then Generate questions.
 2. **Show:** some questions mention her real projects, such as Clinic Booking API.
-3. Open `/recruiter/applications/<application id>/interview` and schedule an interview.
+3. Open `/recruiter/applications/<application id>/interview` and schedule an interview. If no interviewer is saved yet, choose Add new interviewer and type a name.
 4. **Show:** it appears in `/recruiter/interviews`.
 
 ## 6. Dashboard updates
@@ -64,3 +64,9 @@ For each candidate, in the private window:
 - **A score doesn't appear, or the AI failed:** open that applicant and press retry. The app never invents a score, so this is honest behaviour to show.
 - **"Already applied":** post a new job and apply to that one.
 - **A login fails:** run the seed script again.
+
+## Before the real demo
+
+- Resumes for all three demo candidates are already parsed. Skip the upload to save AI quota, unless you want to show it.
+- The Gemini free tier allows few requests per day per model. Don't rehearse again before the demo: one run uses about 6 calls.
+- "Run fairness check" uses more AI calls and hasn't been run live, so leave it out of the main demo.
