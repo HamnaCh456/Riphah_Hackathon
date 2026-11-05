@@ -90,12 +90,14 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
         <div className={styles.charts}>
           <section className={`card ${styles.chart}`}>
             <h2 className={styles.section}>Applications by job</h2>
-            <RingList ariaLabel="Applications by job" items={d.byJob.map((j) => ({
-              key: j.id, label: j.label, value: j.ids.length, total: d.applications.length,
-              segments: [{ value: j.ids.length, color: 'var(--color-teal)' }],
-              href: href(`job:${j.id}`), drill: drill(`job:${j.id}`),
-              detail: `of ${d.applications.length}`,
-            }))} />
+            {d.applications.length === 0
+              ? <p>No applications yet.</p>
+              : <RingList ariaLabel="Applications by job" items={d.byJob.filter((j) => j.ids.length > 0).map((j) => ({
+                  key: j.id, label: j.label, value: j.ids.length, total: d.applications.length,
+                  segments: [{ value: j.ids.length, color: 'var(--color-teal)' }],
+                  href: href(`job:${j.id}`), drill: drill(`job:${j.id}`),
+                  detail: `of ${d.applications.length}`,
+                }))} />}
           </section>
 
           <section className={`card ${styles.chart}`}>
