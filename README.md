@@ -1,4 +1,4 @@
-# Talent Intelligence: AI recruitment platform
+# Riphah Recruitment: AI recruitment platform
 
 Recruiters post jobs, candidates apply with a resume, and AI finds the evidence for each requirement.
 Every score links back to the resume text behind it, and a person makes every hiring decision.

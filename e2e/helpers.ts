@@ -65,8 +65,17 @@ export async function seedApplication(args: { status: Status; useLoginCandidate?
   const project = "Shopwise\nBuilt the Shopwise order API with Django REST Framework and PostgreSQL.";
   const resume = must(await admin.from("resumes").insert({
     candidate_id: candidate.id, file_name: "resume.pdf", file_type: "pdf", raw_text: project,
-    parse_status: "parsed", parsed: {},
+    parse_status: "parsed",
+    parsed: {
+      name: candidateName, email: "", phone: "", location: "", links: "", unverifiedContact: [],
+      experience: [], projects: [], education: [],
+    },
   }).select("id").single()) as { id: string };
+
+  must(await admin.from("candidate_skills").insert({
+    resume_id: resume.id, name: "Django", normalized_name: "django", raw_term: "Django",
+    excerpt: "Built the Shopwise order API with Django REST Framework", verified: true, source: "ai",
+  }));
 
   must(await admin.from("resume_chunks").insert({
     resume_id: resume.id, section: "project", ordinal: 0, content: project, start_offset: 0,
@@ -91,5 +100,15 @@ export async function seedApplication(args: { status: Status; useLoginCandidate?
     importance: 4, is_required: true, status: "no_evidence", explanation: "The resume does not mention Docker.",
   }));
 
-  return { applicationId: application.id, jobId: job.id, jobTitle: job.title, candidateName };
+  return { applicationId: application.id, jobId: job.id, jobTitle: job.title, candidateName, candidateId: candidate.id, resumeId: resume.id };
+}
+
+export async function resumesOf(candidateId: string): Promise<string[]> {
+  const rows = must(await admin.from("resumes").select("id").eq("candidate_id", candidateId)) as { id: string }[];
+  return rows.map((row) => row.id);
+}
+
+export async function applicationResume(applicationId: string): Promise<string> {
+  const row = must(await admin.from("applications").select("resume_id").eq("id", applicationId).single()) as { resume_id: string };
+  return row.resume_id;
 }

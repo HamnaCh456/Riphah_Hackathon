@@ -20,10 +20,9 @@ export const RECRUITER_MOVES: Record<ApplicationStatus, MoveOption[]> = {
   interview: [
     { to: 'selected', label: 'Select', requiresReason: false, primary: true },
     REJECT,
-    { to: 'shortlisted', label: 'Back to shortlist', requiresReason: true },
   ],
   selected: [{ to: 'interview', label: 'Undo selection', requiresReason: true }],
-  rejected: [{ to: 'in_review', label: 'Reopen', requiresReason: true }],
+  rejected: [],
 };
 
 export const PUBLIC_STATUS: Record<string, { label: string; help: string }> = {

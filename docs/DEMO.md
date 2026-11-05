@@ -44,7 +44,7 @@ For each candidate, in the private window:
 ## 4. Recruiter shortlists one applicant
 
 1. Click Hira in the applicants table, then press Shortlist.
-2. **Show:** the change appears in the history.
+2. **Show:** her stage changes to Shortlisted.
 3. **Optional:** in the private window, sign in as Hira. She sees her status but no score, gaps or notes.
 
 ## 5. Interview questions and scheduling

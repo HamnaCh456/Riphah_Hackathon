@@ -25,7 +25,7 @@ export function AppShell({
         <div className="mx-auto flex min-h-[var(--nav-height)] max-w-[1440px] flex-wrap items-center justify-between gap-x-6 px-5 md:h-[var(--nav-height)] md:flex-nowrap lg:px-10">
           <Link
             href={DASHBOARD[profile.role]}
-            aria-label="Talent Intelligence dashboard"
+            aria-label="Riphah Recruitment dashboard"
             className="flex h-[56px] shrink-0 items-center rounded-small text-white focus-visible:outline-white md:h-auto"
           >
             <Logo />

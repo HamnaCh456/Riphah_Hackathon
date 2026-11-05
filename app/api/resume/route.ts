@@ -1,5 +1,5 @@
 import { revalidateTag } from "next/cache";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import { getCurrentProfile } from "@/lib/auth/guards";
 import { extractResumeText } from "@/lib/resume/extract-text";
@@ -8,7 +8,7 @@ import {
   RESUME_FAILURE_MESSAGES,
   type ResumeFailureCode,
 } from "@/lib/resume/file-check";
-import { storeAndParseResume } from "@/lib/resume/service";
+import { reassessApplications, storeAndParseResume } from "@/lib/resume/service";
 import { recommendationsTagFor } from "@/lib/talent/recommend-cache";
 
 // Gemini can take a while, and each try has its own timeout.
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
     return failure(outcome.code, outcome.code === "ai_failed" ? 502 : 422);
   }
 
+  after(() => reassessApplications(outcome.applicationIds));
   revalidateTag(recommendationsTagFor(profile.id), { expire: 0 });
   return NextResponse.json({ ok: true, resumeId: outcome.resumeId });
 }

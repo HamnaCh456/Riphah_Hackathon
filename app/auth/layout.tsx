@@ -1,4 +1,4 @@
-import { Logo } from "@/components/logo";
+import { LogoFull } from "@/components/logo";
 
 // The stages come from the brief. The ones marked are decided by a person, never by the AI.
 const STAGES = [
@@ -20,7 +20,7 @@ export default function AuthLayout({
     <div className="grid min-h-svh bg-surface lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
       <main className="px-5 py-10 lg:px-10 lg:pt-[12vh]">
         <div className="mx-auto w-full max-w-sm">
-          <Logo className="mb-8 text-navy" />
+          <LogoFull className="mb-8" />
           {children}
         </div>
       </main>

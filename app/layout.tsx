@@ -3,7 +3,7 @@ import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Talent Intelligence", template: "%s | Talent Intelligence" },
+  title: { default: "Riphah Recruitment", template: "%s | Riphah Recruitment" },
   description:
     "Recruitment with explainable AI recommendations and human decisions.",
 };

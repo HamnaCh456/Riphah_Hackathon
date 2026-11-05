@@ -2,6 +2,7 @@ import "server-only";
 
 import { AiError, generateJson } from "@/lib/ai/gemini";
 import { db } from "@/lib/db";
+import { runAssessment } from "@/lib/matching/run";
 import type { ResumeFailureCode, ResumeFileType } from "./file-check";
 import {
   PARSE_RESPONSE_SCHEMA,
@@ -30,7 +31,8 @@ export type ResumeView = {
 };
 
 export type ParseOutcome =
-  | { ok: true; resumeId: string }
+  /** applicationIds moved to this resume and now need a fresh AI assessment. */
+  | { ok: true; resumeId: string; applicationIds: string[] }
   | { ok: false; code: ResumeFailureCode; resumeId?: string };
 
 async function runAi(rawText: string): Promise<ParsedResume> {
@@ -44,8 +46,49 @@ async function runAi(rawText: string): Promise<ParsedResume> {
   return parsed;
 }
 
+/**
+ * A new resume replaces the old ones completely. The candidate's applications move to it, and
+ * everything worked out from the old text goes: its skills, chunks, AI assessments and recruiter
+ * corrections. Notes and stages stay, because they are about the person. Applications move last,
+ * so a retry after a failure part way through finds them and finishes the job.
+ */
+async function replacePreviousResumes(
+  candidateId: string,
+  resumeId: string,
+): Promise<string[]> {
+  const client = db();
+  const { data: applications, error } = await client
+    .from("applications")
+    .select("id")
+    .eq("candidate_id", candidateId)
+    .neq("resume_id", resumeId);
+  if (error) throw error;
+  const ids = applications.map((application) => application.id as string);
+
+  if (ids.length > 0) {
+    for (const table of ["assessments", "requirement_overrides", "skill_corrections"]) {
+      const { error: clearError } = await client.from(table).delete().in("application_id", ids);
+      if (clearError) throw clearError;
+    }
+    const { error: moveError } = await client
+      .from("applications")
+      .update({ resume_id: resumeId })
+      .in("id", ids);
+    if (moveError) throw moveError;
+  }
+
+  const { error: deleteError } = await client
+    .from("resumes")
+    .delete()
+    .eq("candidate_id", candidateId)
+    .neq("id", resumeId);
+  if (deleteError) throw deleteError;
+  return ids;
+}
+
 /** Runs extraction for a stored row. A failure keeps the text, so a retry needs no new upload. */
 export async function parseStoredResume(
+  candidateId: string,
   resumeId: string,
   rawText: string,
 ): Promise<ParseOutcome> {
@@ -92,16 +135,26 @@ export async function parseStoredResume(
         })
         .eq("id", resumeId);
 
-  if (error) {
-    console.error("Saving parsed resume failed", error);
+  try {
+    if (error) throw error;
+    const applicationIds = await replacePreviousResumes(candidateId, resumeId);
+    return { ok: true, resumeId, applicationIds };
+  } catch (saveError) {
+    console.error("Saving parsed resume failed", saveError);
     await client
       .from("resumes")
       .update({ parse_status: "failed", failure_code: "ai_failed" })
       .eq("id", resumeId);
     return { ok: false, code: "ai_failed", resumeId };
   }
+}
 
-  return { ok: true, resumeId };
+/** Runs after the response, so the candidate never waits on the AI. Failures leave a retry button. */
+export async function reassessApplications(applicationIds: string[]): Promise<void> {
+  const results = await Promise.allSettled(applicationIds.map((id) => runAssessment(id)));
+  for (const result of results) {
+    if (result.status === "rejected") console.error("Assessment could not start", result.reason);
+  }
 }
 
 export async function storeAndParseResume(args: {
@@ -125,7 +178,7 @@ export async function storeAndParseResume(args: {
     return { ok: false, code: "ai_failed" };
   }
 
-  return parseStoredResume(data.id, args.rawText);
+  return parseStoredResume(args.candidateId, data.id, args.rawText);
 }
 
 /** The newest successfully read resume, always scoped to this candidate. */

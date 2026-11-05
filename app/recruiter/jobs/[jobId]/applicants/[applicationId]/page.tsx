@@ -12,7 +12,6 @@ import { ScoreMeter } from '@/components/matching/ScoreMeter';
 import { Badge } from '@/components/ui/badge';
 import { ProgressNote } from '@/components/ui/progress';
 import { SkillsPanel } from '@/components/matching/SkillsPanel';
-import { AuditTrail } from '@/components/pipeline/AuditTrail';
 import { NotesPanel } from '@/components/pipeline/NotesPanel';
 import { StatusControls } from '@/components/pipeline/StatusControls';
 import { FairnessPanel } from '@/components/trust/FairnessPanel';
@@ -172,7 +171,6 @@ export default async function ApplicationPage({
             />
           </Suspense>
           <NotesPanel applicationId={applicationId} notes={data.notes} />
-          <AuditTrail events={data.events} />
         </aside>
       </div>
     </>

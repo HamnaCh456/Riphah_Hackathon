@@ -1,13 +1,14 @@
 "use server";
 
 import { revalidatePath, updateTag } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 
 import { requireCandidate } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
 import { RESUME_FAILURE_MESSAGES } from "@/lib/resume/file-check";
 import { applyCorrections, resumeDataSchema } from "@/lib/resume/schema";
-import { parseStoredResume } from "@/lib/resume/service";
+import { parseStoredResume, reassessApplications } from "@/lib/resume/service";
 import { displaySkill, normalizeSkill } from "@/lib/skills/normalize";
 import { recommendationsTagFor } from "@/lib/talent/recommend-cache";
 
@@ -126,7 +127,8 @@ export async function retryResumeParse(resumeId: string): Promise<ActionResult> 
   }
   if (!resume) return { ok: false, error: "This resume no longer exists." };
 
-  const outcome = await parseStoredResume(resume.id, resume.raw_text);
+  const outcome = await parseStoredResume(candidate.id, resume.id, resume.raw_text);
+  if (outcome.ok) after(() => reassessApplications(outcome.applicationIds));
   updateTag(recommendationsTagFor(candidate.id));
   revalidatePath(PAGE);
   return outcome.ok

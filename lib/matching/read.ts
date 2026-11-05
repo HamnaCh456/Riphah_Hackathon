@@ -30,15 +30,6 @@ type ListRequirement = StoredRequirement & { needs_review: boolean };
 
 export interface NoteRecord { id: string; body: string; created_at: string }
 
-export interface StatusEventRecord {
-  id: number;
-  from_status: string | null;
-  to_status: string;
-  actor_kind: string;
-  reason: string | null;
-  created_at: string;
-}
-
 export interface SkillCorrectionRecord {
   action: 'add' | 'remove' | 'rename';
   skill_name: string;
@@ -139,7 +130,6 @@ interface ApplicationDetailRow {
   application_review: Review;
   requirement_overrides: OverrideRow[];
   skill_corrections: SkillCorrectionRecord[];
-  application_status_events: StatusEventRecord[];
   application_notes: NoteRecord[];
   assessments: (AssessmentBase & { assessment_requirements: RequirementRecord[] })[];
 }
@@ -156,7 +146,6 @@ export async function loadApplication(applicationId: string, recruiterId: string
     application_review(pinned),
     requirement_overrides(requirement_key, status, reason, created_at),
     skill_corrections(action, skill_name, new_name, reason, created_at),
-    application_status_events(id, from_status, to_status, actor_kind, reason, created_at),
     application_notes(id, body, created_at),
     assessments(status, error, started_at, assessment_requirements(
       id, requirement_key, component, label, importance, is_required, status, depth,
@@ -187,7 +176,6 @@ export async function loadApplication(applicationId: string, recruiterId: string
     pinned: pinnedOf(app.application_review),
     resumeReadable: app.resume?.parse_status === 'parsed',
     notes: app.application_notes,
-    events: app.application_status_events,
     corrections: [...app.skill_corrections].sort((a, b) => a.created_at.localeCompare(b.created_at)),
     // An excerpt that wasn't found in the resume text is never shown as a resume quote.
     extractedSkills: skills.data.map((s) => ({ name: s.name, excerpt: s.verified ? s.excerpt : null })),
