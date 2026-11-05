@@ -16,6 +16,8 @@ const ROLE_LABELS: Record<Role, string> = {
   recruiter: "Recruiter",
 };
 
+const EMAIL_TAKEN = "An account with this email already exists. Log in instead.";
+
 export function SignUpForm() {
   const [role, setRole] = useState<Role>("candidate");
   const [fullName, setFullName] = useState("");
@@ -48,13 +50,17 @@ export function SignUpForm() {
       },
     });
     if (error) {
-      setError(error.message);
+      setError(
+        error.code === "user_already_exists"
+          ? EMAIL_TAKEN
+          : error.message,
+      );
       setIsLoading(false);
       return;
     }
-    // Supabase hides taken emails: it returns a user with no identities.
+    // With email confirmation on, Supabase hides taken emails: a user with no identities.
     if (data.user?.identities?.length === 0) {
-      setError("An account with this email already exists. Log in instead.");
+      setError(EMAIL_TAKEN);
       setIsLoading(false);
       return;
     }

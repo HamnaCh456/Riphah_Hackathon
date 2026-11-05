@@ -24,7 +24,7 @@ export function ForgotPasswordForm() {
     const { error } = await createClient().auth.resetPasswordForEmail(
       parsed.data.email,
       {
-        redirectTo: `${window.location.origin}/auth/confirm?next=/auth/update-password`,
+        redirectTo: `${window.location.origin}/auth/update-password`,
       },
     );
     setIsLoading(false);

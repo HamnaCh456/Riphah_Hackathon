@@ -16,7 +16,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-      <main className="flex flex-col justify-center px-5 py-10 lg:px-10">
+      <main className="px-5 py-10 lg:px-10 lg:pt-[12vh]">
         <div className="mx-auto w-full max-w-sm">
           <p className="mb-8 text-[17px] font-medium tracking-[-.02em] text-platinum">
             Talent Intelligence
@@ -25,7 +25,7 @@ export default function AuthLayout({
         </div>
       </main>
 
-      <aside className="hidden flex-col justify-center border-l bg-deep px-10 py-10 lg:flex">
+      <aside className="hidden border-l bg-deep px-10 py-10 lg:block lg:pt-[12vh]">
         <div className="mx-auto w-full max-w-xl">
           <p className="max-w-[20ch] text-[2.6rem] font-medium leading-none tracking-[-.038em] text-platinum">
             AI recommends. People decide.
