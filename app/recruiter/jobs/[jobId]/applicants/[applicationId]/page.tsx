@@ -12,6 +12,7 @@ import { SkillsPanel } from '@/components/matching/SkillsPanel';
 import { AuditTrail } from '@/components/pipeline/AuditTrail';
 import { NotesPanel } from '@/components/pipeline/NotesPanel';
 import { StatusControls } from '@/components/pipeline/StatusControls';
+import { FairnessPanel } from '@/components/trust/FairnessPanel';
 import { requireRecruiter } from '@/lib/auth/guards';
 import { getOwnedJob } from '@/lib/jobs/queries';
 import { effectiveSkills } from '@/lib/matching/corrections';
@@ -155,6 +156,7 @@ export default async function ApplicationPage({
           )}
 
           <SkillsPanel applicationId={applicationId} skills={effectiveSkills(data.extractedSkills, data.corrections)} />
+          <FairnessPanel applicationId={applicationId} />
         </div>
 
         <aside className="min-w-0 space-y-8">
