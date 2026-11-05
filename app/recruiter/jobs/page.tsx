@@ -138,7 +138,10 @@ function JobsTable({ jobs }: { jobs: JobListItem[] }) {
             <td className="whitespace-nowrap py-3 pr-4 tabular-nums max-md:p-0">
               {postedDate(job.createdAt)}
             </td>
-            <td className="py-3 text-right max-md:col-span-2 max-md:mt-1.5 max-md:p-0 max-md:text-left">
+            <td className="whitespace-nowrap py-3 text-right max-md:col-span-2 max-md:mt-1.5 max-md:p-0 max-md:text-left">
+              <Button asChild variant="ghost" size="sm" className="mr-2">
+                <Link href={`/recruiter/jobs/${job.id}/applicants`}>Applicants</Link>
+              </Button>
               <JobStatusButton jobId={job.id} status={job.status} />
             </td>
           </tr>
