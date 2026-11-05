@@ -24,6 +24,7 @@ export function rankApplicants(rows: ApplicantRow[]): ApplicantRow[] {
   return [...rows].sort((a, b) =>
     Number(b.pinned) - Number(a.pinned)
     || (b.score ?? -1) - (a.score ?? -1)
+    || a.requiredGaps - b.requiredGaps
     || (b.ceiling ?? -1) - (a.ceiling ?? -1)
     || a.appliedAt.localeCompare(b.appliedAt));
 }

@@ -18,6 +18,14 @@ describe('rankApplicants', () => {
     ]);
     expect(out.map((r) => r.applicationId)).toEqual(['pin', 'high', 'tie', 'low', 'none']);
   });
+
+  it('puts the applicant with fewer required gaps first when scores tie', () => {
+    const out = rankApplicants([
+      row({ applicationId: 'gap', score: 88, ceiling: 100, requiredGaps: 1 }),
+      row({ applicationId: 'clean', score: 88, ceiling: 89, requiredGaps: 0 }),
+    ]);
+    expect(out.map((r) => r.applicationId)).toEqual(['clean', 'gap']);
+  });
 });
 
 describe('filterApplicants', () => {

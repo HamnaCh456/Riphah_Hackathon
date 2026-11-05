@@ -6,6 +6,29 @@ export function normalizeForMatch(text: string): string {
     .replace(/\s+/g, ' ').trim();
 }
 
+const MAX_QUOTE = 200;
+
+/**
+ * The AI often quotes only the skills list, even when a job or project line shows the skill in use.
+ * Finds that line in the resume text, so the applicant isn't marked down as "listed only".
+ */
+function findUse(label: string, chunks: RetrievedChunk[]): EvidenceRow | null {
+  const term = normalizeForMatch(label).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const whole = new RegExp(`(^|[^a-z0-9+#])${term}($|[^a-z0-9+#])`);
+  for (const chunk of chunks) {
+    if (chunk.section !== 'experience' && chunk.section !== 'project') continue;
+    for (const line of chunk.content.split('\n')) {
+      for (const sentence of line.replace(/^\s*[-•*]\s*/, '').split(/(?<=[.!?])\s+/)) {
+        if (whole.test(normalizeForMatch(sentence))) {
+          return { chunkId: chunk.id, quote: sentence.trim().slice(0, MAX_QUOTE), section: chunk.section,
+            verified: true, similarity: chunk.similarity };
+        }
+      }
+    }
+  }
+  return null;
+}
+
 export function verifyRequirement(
   req: Requirement, llm: LlmResult | undefined, chunks: RetrievedChunk[],
 ): AssessedRequirement {
@@ -36,8 +59,10 @@ export function verifyRequirement(
       explanation: 'The AI made a claim here but its quote is not in the resume, so it is treated as not mentioned.' };
   }
 
+  const listedOnly = real.every((e) => e.section === 'skills');
+  const use = llm.status === 'matched' && listedOnly ? findUse(req.label, chunks) : null;
   const depth = llm.status === 'confirmed_absent' ? null
-    : real.every((e) => e.section === 'skills') ? 'listed' : 'demonstrated';
+    : listedOnly && !use ? 'listed' : 'demonstrated';
   return { ...base, status: llm.status, depth, needsReview: real.length < evidence.length,
-    evidence, explanation: llm.explanation };
+    evidence: use ? [...evidence, use] : evidence, explanation: llm.explanation };
 }

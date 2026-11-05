@@ -30,8 +30,31 @@ describe('verifyRequirement', () => {
   });
 
   it('marks skills-list-only evidence as listed', () => {
-    const out = verifyRequirement(req, llm({ evidence: [{ chunk_id: 'skl', quote: 'Docker' }] }), chunks);
+    const out = verifyRequirement(req, llm({ evidence: [{ chunk_id: 'skl', quote: 'Docker' }] }), chunks.slice(1));
     expect(out).toMatchObject({ status: 'matched', depth: 'listed' });
+  });
+
+  it('adds the experience line that shows the skill being used', () => {
+    const withUse: RetrievedChunk[] = [
+      { id: 'skl', section: 'skills', content: 'Python, Django', similarity: 0.7 },
+      { id: 'exp', section: 'experience', content: 'Acme, 2021\n- Built a tracking API in Django.\n- Ran the on-call rota.', similarity: 0.6 },
+    ];
+    const django = { ...req, label: 'Django' };
+    const out = verifyRequirement(django, llm({ evidence: [{ chunk_id: 'skl', quote: 'Django' }] }), withUse);
+    expect(out).toMatchObject({ status: 'matched', depth: 'demonstrated', needsReview: false });
+    expect(out.evidence[1]).toMatchObject({
+      chunkId: 'exp', quote: 'Built a tracking API in Django.', section: 'experience', verified: true,
+    });
+  });
+
+  it("doesn't take JavaScript as use of Java", () => {
+    const withUse: RetrievedChunk[] = [
+      { id: 'skl', section: 'skills', content: 'Java', similarity: 0.7 },
+      { id: 'exp', section: 'experience', content: 'Built a JavaScript dashboard.', similarity: 0.6 },
+    ];
+    const java = { ...req, label: 'Java' };
+    const out = verifyRequirement(java, llm({ evidence: [{ chunk_id: 'skl', quote: 'Java' }] }), withUse);
+    expect(out.depth).toBe('listed');
   });
 
   it('keeps confirmed_absent only with a verified quote', () => {

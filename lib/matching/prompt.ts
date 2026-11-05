@@ -68,7 +68,7 @@ Statuses:
 - confirmed_absent: an excerpt explicitly says the person does not have it, such as "no hands-on Docker experience". Never use confirmed_absent because something is not mentioned.
 
 Rules:
-- For matched, partial and confirmed_absent, give at least one quote copied exactly from a listed excerpt, with that excerpt's id. Keep each quote under 200 characters. Never paraphrase a quote.
+- For matched, partial and confirmed_absent, give at least one quote copied exactly from a listed excerpt, with that excerpt's id. Keep each quote under 200 characters. Never paraphrase a quote. If an experience or project excerpt shows the skill in use, quote that and not the skills list.
 - For no_evidence, return an empty evidence list.
 - explanation: one plain sentence about the evidence. For no_evidence, say the resume does not mention it. Never say the person lacks it unless the status is confirmed_absent.
 - learning_suggestion: for partial, no_evidence and confirmed_absent, name one specific topic to learn for this job. Otherwise null. Write about the topic, not about the person.
