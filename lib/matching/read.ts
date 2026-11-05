@@ -122,6 +122,37 @@ export async function loadApplicants(jobId: string): Promise<ApplicantRow[]> {
   });
 }
 
+/**
+ * The score and "could reach" for a candidate's own applications, and nothing else from the assessment.
+ * Candidates can't read assessments through RLS, so the secret key is limited to their own id here.
+ */
+export async function loadMyScores(candidateId: string) {
+  const { data, error } = await db().from('applications').select(`
+    id,
+    requirement_overrides(requirement_key, status, reason, created_at),
+    assessments(status, started_at, assessment_requirements(
+      requirement_key, component, label, importance, is_required, status, depth
+    ))
+  `).eq('candidate_id', candidateId);
+  if (error) throw new Error(`Could not load your scores: ${error.message}`);
+
+  const scores = new Map<string, { score: number; ceiling: number }>();
+  for (const application of data as unknown as {
+    id: string;
+    requirement_overrides: OverrideRow[];
+    assessments: (AssessmentBase & { assessment_requirements: StoredRequirement[] })[];
+  }[]) {
+    const latest = newest(application.assessments);
+    if (!latest || stateOf(latest) !== 'complete') continue;
+    const { score, ceiling } = applyOverrides<StoredRequirement>(
+      latest.assessment_requirements,
+      application.requirement_overrides,
+    );
+    scores.set(application.id, { score, ceiling });
+  }
+  return scores;
+}
+
 interface ApplicationDetailRow {
   id: string;
   resume_id: string;

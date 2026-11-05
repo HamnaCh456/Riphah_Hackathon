@@ -1,11 +1,13 @@
 import Link from 'next/link';
 
 import { formatDate } from '@/components/matching/labels';
+import { ScoreRing } from '@/components/matching/ScoreRing';
 import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { requireCandidate } from '@/lib/auth/guards';
 import { getCandidateInterviews, getCandidateNotifications } from '@/lib/interviews/candidate-view';
 import { INTERVIEW_TYPES } from '@/lib/interviews/schemas';
 import { formatDay, formatTimeRange } from '@/lib/interviews/time';
+import { loadMyScores } from '@/lib/matching/read';
 import { PUBLIC_STATUS } from '@/lib/pipeline/status';
 import { createClient } from '@/lib/supabase/server';
 
@@ -23,7 +25,7 @@ interface MyApplication {
 }
 interface TimelineStep { public_status: string; at: string }
 
-// Reads only the two candidate functions, which return simplified stages and nothing recruiter-only.
+// Stages come from the two candidate functions. loadMyScores adds only the candidate's own two numbers.
 export default async function MyApplicationsPage() {
   const profile = await requireCandidate();
   const supabase = await createClient();
@@ -37,9 +39,10 @@ export default async function MyApplicationsPage() {
     return { ...application, timeline: (timeline.data ?? []) as TimelineStep[] };
   }));
 
-  const [interviews, notifications] = await Promise.all([
+  const [interviews, notifications, scores] = await Promise.all([
     getCandidateInterviews(profile.id),
     getCandidateNotifications(profile.id),
+    loadMyScores(profile.id),
   ]);
 
   return (
@@ -56,6 +59,7 @@ export default async function MyApplicationsPage() {
       <div className="mt-5 max-w-3xl space-y-3">
         {applications.map((application) => {
           const current = PUBLIC_STATUS[application.public_status];
+          const result = scores.get(application.application_id);
           return (
             <section key={application.application_id} className="card p-5 text-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -63,6 +67,17 @@ export default async function MyApplicationsPage() {
                 <Badge tone={PUBLIC_TONE[application.public_status] ?? 'blue'}>{current.label}</Badge>
               </div>
               <p className="mt-1">{current.help}</p>
+              {result && (
+                <div className="mt-3 flex items-center gap-3">
+                  <ScoreRing score={result.score} ceiling={result.ceiling} className="shrink-0" />
+                  <p>
+                    Your score for this job: {result.score}.
+                    {result.ceiling > result.score && (
+                      <> You could reach {result.ceiling} if you have the skills your resume doesn&apos;t mention yet.</>
+                    )}
+                  </p>
+                </div>
+              )}
               <ol className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px]">
                 {application.timeline.map((step) => (
                   <li key={step.at} className="flex items-center gap-1.5">
