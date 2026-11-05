@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DrillLink, type DrillTarget } from "@/app/recruiter/analytics/DrillDialog";
 import { cn } from "@/lib/utils";
 
 const ICONS = {
@@ -11,34 +12,37 @@ const ICONS = {
 } as const;
 
 const TONES = {
-  blue: "bg-tint text-brand",
-  teal: "bg-teal-soft text-teal",
-  gold: "bg-highlight text-[#8a6510]",
-  navy: "bg-[#dfe6f1] text-navy",
+  blue: "text-brand",
+  teal: "text-teal",
+  gold: "text-gold",
+  navy: "text-navy",
 } as const;
 
-/** A number that opens the list behind it. */
-export function StatCard({ label, value, href, icon, tone = "blue", testId }: {
+/** A number that opens the list behind it, in a pop-up when it has a drill target. */
+export function StatCard({ label, value, href, icon, tone = "blue", testId, drill }: {
   label: string;
   value: string | number;
   href: string;
   icon: keyof typeof ICONS;
   tone?: keyof typeof TONES;
   testId?: string;
+  drill?: DrillTarget;
 }) {
-  return (
-    <Link href={href} className="card card-link flex h-full items-center gap-3 p-4">
-      <span aria-hidden="true" className={cn("flex size-10 shrink-0 items-center justify-center rounded-[10px]", TONES[tone])}>
-        <svg viewBox="0 0 24 24" className="size-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d={ICONS[icon]} />
-        </svg>
-      </span>
+  const className = "card card-link flex h-full items-start justify-between gap-3 px-4 py-3.5";
+  const body = (
+    <>
       <span className="min-w-0">
         <span data-testid={testId} className="block text-[26px] font-semibold leading-none tracking-[-.02em] text-navy tabular-nums">
           {value}
         </span>
-        <span className="mt-1 block text-[13px] leading-tight text-ink">{label}</span>
+        <span className="mt-1.5 block text-[13px] leading-tight text-ink">{label}</span>
       </span>
-    </Link>
+      <svg aria-hidden="true" viewBox="0 0 24 24" className={cn("size-[18px] shrink-0 fill-none stroke-current", TONES[tone])} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d={ICONS[icon]} />
+      </svg>
+    </>
   );
+  return drill
+    ? <DrillLink href={href} target={drill} className={className}>{body}</DrillLink>
+    : <Link href={href} className={className}>{body}</Link>;
 }

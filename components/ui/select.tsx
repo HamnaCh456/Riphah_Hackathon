@@ -3,6 +3,14 @@
 
 import * as RadixSelect from "@radix-ui/react-select";
 
+export function ChevronDown({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 16 16" className={`${className} shrink-0 fill-none stroke-current`} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m4 6 4 4 4-4" />
+    </svg>
+  );
+}
+
 export function Select({ label, value, onChange, options }: {
   label: string; value: string; onChange: (value: string) => void;
   options: { value: string; label: string }[];
@@ -12,9 +20,9 @@ export function Select({ label, value, onChange, options }: {
       <span className="mb-1 block font-arial text-sm">{label}</span>
       <RadixSelect.Root value={value} onValueChange={onChange}>
         <RadixSelect.Trigger aria-label={label}
-          className="flex h-12 w-full cursor-pointer items-center justify-between rounded-small border bg-surface px-3 font-arial text-sm text-ink transition-colors hover:border-brand">
+          className="flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-small border bg-surface px-3 font-arial text-sm text-ink transition-colors hover:border-brand">
           <RadixSelect.Value placeholder="Choose" />
-          <RadixSelect.Icon aria-hidden="true">▾</RadixSelect.Icon>
+          <RadixSelect.Icon><ChevronDown /></RadixSelect.Icon>
         </RadixSelect.Trigger>
         <RadixSelect.Portal>
           <RadixSelect.Content position="popper" sideOffset={4}

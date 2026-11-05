@@ -1,43 +1,27 @@
 // app/recruiter/analytics/applicants/page.tsx
+// Dashboard numbers open a pop-up. This page is for links opened in a new tab or shared.
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { computeDashboard, drillDown, stageLabel } from '@/lib/analytics/compute';
-import { loadDashboardInput } from '@/lib/analytics/load';
+import { stageLabel } from '@/lib/analytics/compute';
+import { loadDrill } from '@/lib/analytics/drill';
 import { Badge } from '@/components/ui/badge';
 import { stageTone } from '@/components/matching/labels';
 import { requireRecruiter } from '@/lib/auth/guards';
-import { db } from '@/lib/db';
-import type { ApplicationStatus } from '@/lib/pipeline/status';
 import styles from '../analytics.module.css';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Applicants' };
-
-type Row = {
-  id: string; job_id: string; status: ApplicationStatus;
-  jobs: { title: string };
-  candidate: { full_name: string };
-};
 
 export default async function AnalyticsApplicantsPage({ searchParams }: {
   searchParams: Promise<{ metric?: string; job?: string }>;
 }) {
   const recruiter = await requireRecruiter();
   const { metric, job } = await searchParams;
-  const input = await loadDashboardInput(recruiter.id, job);
-  const result = metric ? drillDown(computeDashboard(input), metric) : null;
+  const result = metric ? await loadDrill(recruiter.id, metric, job) : null;
   if (!result) notFound();
+  const { rows } = result;
 
-  let rows: Row[] = [];
-  if (result.ids.length) {
-    const { data, error } = await db().from('applications')
-      .select('id, job_id, status, jobs(title), candidate:profiles!applications_candidate_id_fkey(full_name)')
-      .in('id', [...new Set(result.ids)]);
-    if (error) throw error;
-    rows = (data ?? []) as unknown as Row[];
-  }
-
-  const back = input.jobFilter ? `/recruiter/analytics?job=${input.jobFilter}` : '/recruiter/analytics';
+  const back = result.jobFilter ? `/recruiter/analytics?job=${result.jobFilter}` : '/recruiter/analytics';
   return (
     <div className={styles.page}>
       <p className={styles.breadcrumb}><Link href={back}>Dashboard</Link></p>

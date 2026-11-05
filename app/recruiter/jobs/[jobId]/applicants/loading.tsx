@@ -5,8 +5,8 @@ export default function Loading() {
     <PageSkeleton>
       <Skeleton className="h-3.5 w-16" />
       <TitleSkeleton className="mt-2 w-72" />
-      <Skeleton className="mt-4 h-20 w-full rounded-card" />
-      <TableSkeleton className="mt-5" />
+      <Skeleton className="mt-4 h-9 w-full" />
+      <TableSkeleton className="mt-3" />
     </PageSkeleton>
   );
 }

@@ -33,12 +33,10 @@ export function DecisionControl({ applicationId, candidateName }: { applicationI
   const verb = decision === 'selected' ? 'Select' : 'Reject';
   return (
     <>
-      <div className={styles.actions}>
-        <Button variant="ghost" onClick={() => setDecision('selected')}>Select candidate</Button>
-        <Button variant="ghost" onClick={() => setDecision('rejected')}>Reject candidate</Button>
-      </div>
+      <Button size="sm" onClick={() => setDecision('selected')}>Select</Button>
+      <Button variant="ghost" size="sm" onClick={() => setDecision('rejected')}>Reject</Button>
       <Dialog open={decision !== null} onClose={close} title={`${verb} ${candidateName}?`}
-        footer={<Button variant="primary" disabled={pending} onClick={submit}>
+        footer={<Button variant="primary" size="sm" loading={pending} onClick={submit}>
           {needsConfirm ? `${verb} without feedback` : `${verb} candidate`}
         </Button>}>
         {needsConfirm && (

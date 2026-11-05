@@ -7,13 +7,9 @@ import { Dialog } from '@/components/ui/dialog';
 import { Select } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { saveFeedbackAction } from '@/app/recruiter/interviews/actions';
+import type { FeedbackValues } from '@/lib/interviews/read';
 import { RATING_CRITERIA, RECOMMENDATIONS } from '@/lib/interviews/schemas';
 import styles from '@/app/recruiter/interviews/interviews.module.css';
-
-export type FeedbackValues = {
-  technical_skill: number; problem_solving: number; communication: number; job_knowledge: number;
-  recommendation: string; strengths: string; concerns: string;
-};
 
 export function FeedbackDialog({ interviewId, interviewerName, initial }: {
   interviewId: string; interviewerName: string; initial: FeedbackValues | null;
@@ -40,7 +36,7 @@ export function FeedbackDialog({ interviewId, interviewerName, initial }: {
 
   return (
     <>
-      <Button variant="ghost" onClick={() => setOpen(true)}>{initial ? 'Edit feedback' : 'Add feedback'}</Button>
+      <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>{initial ? 'Edit feedback' : 'Add feedback'}</Button>
       <Dialog open={open} onClose={() => setOpen(false)} title={`Feedback from ${interviewerName}`}
         footer={<Button variant="primary" disabled={pending} onClick={save}>Save feedback</Button>}>
         <div className={styles.ratings}>

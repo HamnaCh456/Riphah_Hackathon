@@ -28,8 +28,9 @@ async function ownedQuestion(questionId: string) {
   return auth ? { ...auth, question: data } : null;
 }
 
-function refresh(applicationId: string) {
-  revalidatePath(`/recruiter/applications/${applicationId}/questions`);
+function refresh(app: { id: string; jobId: string }) {
+  revalidatePath(`/recruiter/applications/${app.id}/questions`);
+  revalidatePath(`/recruiter/jobs/${app.jobId}/applicants/${app.id}`);
 }
 
 export async function generateSetAction(applicationId: string): Promise<ActionResult> {
@@ -55,7 +56,7 @@ export async function generateSetAction(applicationId: string): Promise<ActionRe
     console.error('generateSetAction', error);
     return { ok: false, error: GENERATION_FAILED };
   }
-  refresh(applicationId);
+  refresh(auth.app);
   return { ok: true };
 }
 
@@ -80,7 +81,7 @@ export async function regenerateOneAction(questionId: string): Promise<ActionRes
     console.error('regenerateOneAction', error);
     return { ok: false, error: "Couldn't write a new question. This one is unchanged. Try again." };
   }
-  refresh(auth.app.id);
+  refresh(auth.app);
   return { ok: true };
 }
 
@@ -100,7 +101,7 @@ export async function updateQuestionAction(questionId: string, raw: unknown): Pr
     .update({ ...parsed.data, edited: true, updated_at: new Date().toISOString() })
     .eq('id', questionId);
   if (error) return { ok: false, error: "Couldn't save your edit. Try again." };
-  refresh(auth.app.id);
+  refresh(auth.app);
   return { ok: true };
 }
 
@@ -110,6 +111,6 @@ export async function removeQuestionAction(questionId: string): Promise<ActionRe
 
   const { error } = await db().from('interview_questions').delete().eq('id', questionId);
   if (error) return { ok: false, error: "Couldn't remove the question. Try again." };
-  refresh(auth.app.id);
+  refresh(auth.app);
   return { ok: true };
 }

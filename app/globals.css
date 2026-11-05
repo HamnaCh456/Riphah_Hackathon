@@ -13,6 +13,7 @@
   --color-muted: #4a5f7a;
   --color-brand: #1b62c4;
   --color-brand-dark: #154f9f;
+  --color-brand-pale: #b7d0f1;
   --color-teal: #0e7c7b;
   --color-teal-soft: #dcf2f1;
   --color-gold: #b8891b;
@@ -213,24 +214,13 @@
     animation: spin 0.7s linear infinite;
   }
 
-  .progress-track {
-    position: relative;
-    height: 4px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: var(--color-tint);
-  }
-  .progress-bar {
-    position: absolute;
-    inset-block: 0;
-    width: 40%;
-    border-radius: 999px;
-    background: var(--color-brand);
-    animation: progress-slide 1.3s ease-in-out infinite;
-  }
-
   .page-enter {
     animation: page-enter 0.2s ease-out;
+  }
+
+  /* Opacity only, because a pop-up is centred with a transform. */
+  .dialog-fade {
+    animation: dialog-fade 0.15s ease-out;
   }
 
   .no-scrollbar {
@@ -254,12 +244,9 @@
     transform: rotate(360deg);
   }
 }
-@keyframes progress-slide {
+@keyframes dialog-fade {
   from {
-    left: -40%;
-  }
-  to {
-    left: 100%;
+    opacity: 0;
   }
 }
 @keyframes page-enter {
@@ -278,6 +265,7 @@
     transition-duration: 0.01ms !important;
   }
   .page-enter,
+  .dialog-fade,
   .skeleton {
     animation: none;
   }

@@ -3,18 +3,18 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { AutoRefresh } from '@/components/matching/AutoRefresh';
-import { FormSelect } from '@/components/matching/FormSelect';
 import { STATUS_LABELS, stageTone } from '@/components/matching/labels';
-import { ScoreMeter } from '@/components/matching/ScoreMeter';
+import { ScoreRing } from '@/components/matching/ScoreRing';
 import { TalentPoolPanel } from '@/components/talent/TalentPoolPanel';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { requireRecruiter } from '@/lib/auth/guards';
 import { getOwnedJob } from '@/lib/jobs/queries';
 import { recommendation } from '@/lib/matching/explain';
 import { filterApplicants, rankApplicants, type ApplicantRow } from '@/lib/matching/filters';
 import { loadApplicants } from '@/lib/matching/read';
+
+import { ApplicantFilterBar } from './ApplicantFilterBar';
+import { CompareButton } from './CompareButton';
 
 export const metadata = { title: 'Applicants' };
 export const maxDuration = 60;
@@ -39,6 +39,7 @@ export default async function ApplicantsPage({
   const skill = q.skill && q.skill !== ANY ? q.skill : undefined;
   const status = q.status && q.status !== ANY ? q.status : undefined;
   const rows = rankApplicants(filterApplicants(all, {
+    name: q.q,
     minScore: Number.isNaN(minScore) ? undefined : minScore,
     skill,
     status,
@@ -55,75 +56,45 @@ export default async function ApplicantsPage({
       <nav aria-label="Breadcrumb" className="font-arial text-[13px]">
         <Link href="/recruiter/jobs" className="textlink">Jobs</Link>
       </nav>
-      <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
-        <h1 className="text-2xl">{job.title}</h1>
-        <span className="text-sm tabular-nums">
-          {rows.length === all.length ? `${all.length} applicant${all.length === 1 ? '' : 's'}` : `${rows.length} of ${all.length} applicants`}
-        </span>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="flex flex-wrap items-baseline gap-x-3">
+          <h1 className="text-2xl">{job.title}</h1>
+          <span className="text-sm tabular-nums">
+            {rows.length === all.length ? `${all.length} applicant${all.length === 1 ? '' : 's'}` : `${rows.length} of ${all.length} applicants`}
+          </span>
+        </div>
+        {rows.length > 0 && (
+          <Form id="compare-form" action={`/recruiter/jobs/${jobId}/compare`}>
+            <CompareButton key={rows.map((r) => r.applicationId).join()} />
+          </Form>
+        )}
       </div>
 
       {all.length === 0 ? (
         <p className="card mt-5 p-5 text-sm">No applications yet.</p>
       ) : (
         <>
-          <Form action="" className="card mt-4 flex flex-wrap items-end gap-3 p-4">
-            <div className="w-32">
-              <label htmlFor="minScore" className="mb-1 block font-arial text-sm">Minimum score</label>
-              <Input
-                id="minScore"
-                name="minScore"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={3}
-                defaultValue={q.minScore}
-              />
-            </div>
-            <FormSelect
-              name="skill"
-              label="Backed skill"
-              defaultValue={skill ?? ANY}
-              options={[{ value: ANY, label: 'Any' }, ...skills.map((s) => ({ value: s, label: s }))]}
-            />
-            <FormSelect
-              name="status"
-              label="Stage"
-              defaultValue={status ?? ANY}
-              options={[{ value: ANY, label: 'Any' }, ...Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }))]}
-            />
-            <Toggle name="needsReview" label="Needs manual check" checked={q.needsReview === 'on'} />
-            <Toggle name="noRequiredGaps" label="All required skills backed" checked={q.noRequiredGaps === 'on'} />
-            <Button variant="ghost" size="sm" className="h-12">Apply filters</Button>
-            <Link href={`/recruiter/jobs/${jobId}/applicants`} className="textlink flex h-12 items-center font-arial text-sm">
-              Clear
-            </Link>
-          </Form>
+          <ApplicantFilterBar
+            skills={skills}
+            values={{
+              q: q.q ?? '',
+              skill: skill ?? '',
+              status: status ?? '',
+              minScore: q.minScore ?? '',
+              needsReview: q.needsReview === 'on',
+              noRequiredGaps: q.noRequiredGaps === 'on',
+            }}
+          />
 
           {rows.length === 0 ? (
-            <p className="card mt-5 p-5 text-sm">No applicants match these filters.</p>
+            <p className="card mt-3 p-5 text-sm">No applicants match these filters.</p>
           ) : (
-            <>
-              <Form id="compare-form" action={`/recruiter/jobs/${jobId}/compare`} className="mt-5 flex flex-wrap items-center gap-3">
-                <Button type="submit" variant="ghost" size="sm">Compare selected</Button>
-                <span className="text-sm">Tick 2 to 4 assessed applicants.</span>
-              </Form>
-              <ApplicantsTable jobId={jobId} rows={rows} />
-            </>
+            <ApplicantsTable jobId={jobId} rows={rows} />
           )}
         </>
       )}
       <TalentPoolPanel jobId={jobId} />
     </>
-  );
-}
-
-function Toggle({ name, label, checked }: { name: string; label: string; checked: boolean }) {
-  return (
-    <label className="cursor-pointer font-arial text-sm">
-      <input type="checkbox" name={name} defaultChecked={checked} className="peer sr-only" />
-      <span className="flex h-12 items-center rounded-small border px-3 transition-colors hover:border-brand hover:bg-wash hover:text-brand-dark peer-checked:border-brand peer-checked:bg-tint peer-checked:text-navy peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand">
-        {label}
-      </span>
-    </label>
   );
 }
 
@@ -133,7 +104,7 @@ function ApplicantsTable({ jobId, rows }: { jobId: string; rows: ApplicantRow[] 
       <table className="data-table">
         <thead>
           <tr>
-            <th scope="col" className="w-10 !pr-0"><span className="sr-only">Compare</span></th>
+            <th scope="col" className="w-10 !pr-0">Compare</th>
             <th scope="col">Applicant</th>
             <th scope="col">Score</th>
             <th scope="col" className="max-md:hidden">AI guidance</th>
@@ -145,7 +116,7 @@ function ApplicantsTable({ jobId, rows }: { jobId: string; rows: ApplicantRow[] 
           {rows.map((r) => {
             const href = `/recruiter/jobs/${jobId}/applicants/${r.applicationId}`;
             return (
-              <tr key={r.applicationId} className="relative align-top">
+              <tr key={r.applicationId} className="relative align-middle">
                 <td className="!py-1 !pr-0">
                   {/* Sits above the row-wide link, and belongs to the compare form above the table. */}
                   <label className="relative z-10 flex min-h-11 min-w-8 cursor-pointer items-center">
@@ -190,10 +161,9 @@ function ScoreCell({ row, href }: { row: ApplicantRow; href: string }) {
   if (row.assessmentState === 'failed') return <span className="text-ink">AI failed, open to retry</span>;
   if (row.score === null || row.ceiling === null) return <span>Not assessed</span>;
   return (
-    <Link href={`${href}#evidence`} className="group relative z-10 block w-28">
-      <span className="text-base font-semibold tabular-nums text-brand group-hover:underline">{row.score}</span>
-      {row.ceiling > row.score && <span className="text-[13px]"> could reach {row.ceiling}</span>}
-      <ScoreMeter score={row.score} ceiling={row.ceiling} className="mt-1" />
+    <Link href={`${href}#evidence`} className="group relative z-10 inline-flex items-center gap-2 rounded-full">
+      <ScoreRing score={row.score} ceiling={row.ceiling} />
+      {row.ceiling > row.score && <span className="text-[13px] leading-tight transition-colors group-hover:text-brand-dark">could reach {row.ceiling}</span>}
     </Link>
   );
 }

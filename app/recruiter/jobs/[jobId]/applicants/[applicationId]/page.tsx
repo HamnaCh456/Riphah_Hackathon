@@ -8,14 +8,23 @@ import { AutoRefresh } from '@/components/matching/AutoRefresh';
 import { STATUS_LABELS, stageTone } from '@/components/matching/labels';
 import { RequirementRow } from '@/components/matching/RequirementRow';
 import { RetryAssessment } from '@/components/matching/RetryAssessment';
-import { ScoreMeter } from '@/components/matching/ScoreMeter';
+import { ScoreRing } from '@/components/matching/ScoreRing';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ProgressNote } from '@/components/ui/progress';
+import { Ring } from '@/components/ui/ring';
 import { SkillsPanel } from '@/components/matching/SkillsPanel';
 import { NotesPanel } from '@/components/pipeline/NotesPanel';
 import { StatusControls } from '@/components/pipeline/StatusControls';
 import { FairnessPanel } from '@/components/trust/FairnessPanel';
+import { InterviewCard } from '@/app/recruiter/applications/[id]/interview/InterviewCard';
+import { ScheduleDialog } from '@/app/recruiter/applications/[id]/interview/ScheduleDialog';
+import { QuestionsDialog } from '@/app/recruiter/applications/[id]/questions/QuestionsDialog';
+import type { QuestionRow } from '@/app/recruiter/applications/[id]/questions/QuestionsClient';
 import { requireRecruiter } from '@/lib/auth/guards';
+import { db } from '@/lib/db';
+import { loadApplicationInterviews, loadInterviewers } from '@/lib/interviews/read';
+import { toPktFields } from '@/lib/interviews/time';
 import { getOwnedJob } from '@/lib/jobs/queries';
 import { effectiveSkills } from '@/lib/matching/corrections';
 import { loadApplication } from '@/lib/matching/read';
@@ -31,7 +40,6 @@ const COMPONENT_LABEL = {
   qualification: 'Qualifications',
 } as const;
 const COMPONENTS = ['skill', 'experience', 'project', 'qualification'] as const;
-const INTERVIEW_STAGES = ['shortlisted', 'interview', 'selected'];
 
 export default async function ApplicationPage({
   params,
@@ -46,6 +54,18 @@ export default async function ApplicationPage({
   const canAssess = data.resumeReadable && (job?.requirements.length ?? 0) > 0;
   const needsRun = canAssess && (assessmentState === 'failed' || assessmentState === 'none');
 
+  const [interviews, interviewers, questions, projects] = await Promise.all([
+    loadApplicationInterviews(applicationId),
+    loadInterviewers(profile.id),
+    db().from('interview_questions')
+      .select('id, kind, difficulty, skill, question, answer_guidelines, evidence_quote, support, edited')
+      .eq('application_id', applicationId).order('created_at'),
+    db().from('resume_chunks').select('id', { count: 'exact', head: true })
+      .eq('resume_id', owned.resumeId).eq('section', 'project'),
+  ]);
+  if (questions.error) throw questions.error;
+  const today = toPktFields(new Date().toISOString()).date;
+
   return (
     <>
       <AutoRefresh active={assessmentState === 'running'} />
@@ -58,23 +78,28 @@ export default async function ApplicationPage({
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
             <h1 className="text-2xl">{owned.candidateName}</h1>
             <Badge tone={stageTone(owned.status)}>{STATUS_LABELS[owned.status]}</Badge>
-            <div className="flex flex-wrap items-baseline gap-x-3 font-arial text-[13px]">
-              <ActionForm action={togglePinAction}>
-                <input type="hidden" name="applicationId" value={applicationId} />
-                <input type="hidden" name="pinned" value={String(!data.pinned)} />
-                <button className="textlink cursor-pointer">{data.pinned ? 'Unpin' : 'Pin to top'}</button>
-              </ActionForm>
-              <Link href={`/recruiter/applications/${applicationId}/questions`} className="textlink">
-                Interview questions
-              </Link>
-              {INTERVIEW_STAGES.includes(owned.status) && (
-                <Link href={`/recruiter/applications/${applicationId}/interview`} className="textlink">
-                  Schedule interview
-                </Link>
-              )}
-            </div>
+            <ActionForm action={togglePinAction} className="font-arial text-[13px]">
+              <input type="hidden" name="applicationId" value={applicationId} />
+              <input type="hidden" name="pinned" value={String(!data.pinned)} />
+              <button className="textlink cursor-pointer">{data.pinned ? 'Unpin' : 'Pin to top'}</button>
+            </ActionForm>
           </div>
-          <StatusControls applicationId={applicationId} status={owned.status} />
+          <div className="flex flex-wrap items-center gap-2">
+            <QuestionsDialog
+              applicationId={applicationId}
+              candidateName={owned.candidateName}
+              canEdit={owned.status === 'shortlisted' || owned.status === 'interview'}
+              hasProjects={(projects.count ?? 0) > 0}
+              questions={(questions.data ?? []) as QuestionRow[]}
+            />
+            <StatusControls
+              applicationId={applicationId}
+              status={owned.status}
+              candidateName={owned.candidateName}
+              interviewers={interviewers}
+              today={today}
+            />
+          </div>
         </div>
       </header>
 
@@ -113,27 +138,39 @@ export default async function ApplicationPage({
 
           {result && (
             <>
-              <section className="card border-l-4 border-l-brand p-5">
-                <div className="flex flex-wrap items-baseline gap-x-3">
-                  <span className="text-[40px] font-semibold leading-none tracking-[-.02em] tabular-nums text-brand">{result.score}</span>
-                  <span className="text-sm">/ 100</span>
-                  <span className="font-medium text-navy">{data.recommendation}</span>
-                  <span className="text-[13px]">AI guidance only. You decide.</span>
+              <section className="card p-5">
+                <div className="flex items-center gap-4">
+                  <ScoreRing score={result.score} ceiling={result.ceiling} size={84} />
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-baseline gap-x-3">
+                      <span className="text-lg font-medium text-navy">{data.recommendation}</span>
+                      {result.ceiling > result.score && <span className="text-sm">Could reach {result.ceiling}</span>}
+                    </p>
+                    <p className="mt-0.5 text-[13px]">AI guidance only. You decide.</p>
+                  </div>
                 </div>
-                <ScoreMeter score={result.score} ceiling={result.ceiling} className="mt-3 max-w-xl" />
                 <p className="mt-3 max-w-[78ch] text-sm leading-relaxed">{data.summary}</p>
-                <nav aria-label="Score parts" className="mt-3 flex flex-wrap gap-2 font-arial text-[13px]">
-                  {result.components.filter((c) => c.weight > 0).map((c) => (
-                    <a
-                      key={c.component}
-                      href={`#part-${c.component}`}
-                      className="rounded-small border px-2.5 py-1.5 transition-colors hover:border-brand hover:bg-wash hover:text-brand-dark"
-                    >
-                      {COMPONENT_LABEL[c.component]}{' '}
-                      <span className="font-semibold tabular-nums text-brand">{Math.round(c.credit * 100)}%</span>
-                      {' '}of {Math.round(c.weight * 100)}% weight
-                    </a>
-                  ))}
+                <nav aria-label="Score parts" className="mt-4 flex flex-wrap gap-x-5 gap-y-3 font-arial text-[13px]">
+                  {result.components.filter((c) => c.weight > 0).map((c) => {
+                    const percent = Math.round(c.credit * 100);
+                    return (
+                      <a key={c.component} href={`#part-${c.component}`} className="group flex items-center gap-2 rounded-small">
+                        <Ring
+                          size={44}
+                          stroke={4}
+                          total={100}
+                          label={`${COMPONENT_LABEL[c.component]}: ${percent}%`}
+                          segments={[{ value: percent, color: 'var(--color-brand)' }]}
+                        >
+                          <span className="text-[11px]">{percent}%</span>
+                        </Ring>
+                        <span className="leading-tight">
+                          <span className="block font-medium text-ink transition-colors group-hover:text-brand-dark">{COMPONENT_LABEL[c.component]}</span>
+                          {Math.round(c.weight * 100)}% weight
+                        </span>
+                      </a>
+                    );
+                  })}
                 </nav>
                 {result.rescaled && (
                   <p className="mt-2 text-[13px]">Weights are scaled up because this job does not ask for every part.</p>
@@ -170,6 +207,27 @@ export default async function ApplicationPage({
               recruiterId={profile.id}
             />
           </Suspense>
+          {(interviews.length > 0 || owned.status === 'interview') && (
+            <section className="card p-5 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-lg">Interview</h2>
+                {owned.status === 'interview' && (
+                  <ScheduleDialog
+                    applicationId={applicationId}
+                    interviewers={interviewers}
+                    today={today}
+                    trigger={<Button variant="ghost" size="sm">Schedule interview</Button>}
+                  />
+                )}
+              </div>
+              {interviews.length === 0 && <p className="mt-2">No interview scheduled yet.</p>}
+              {interviews.map((row) => (
+                <div key={row.id} className="mt-3 border-t border-hairline-soft pt-3">
+                  <InterviewCard applicationId={applicationId} row={row} interviewers={interviewers} today={today} />
+                </div>
+              ))}
+            </section>
+          )}
           <NotesPanel applicationId={applicationId} notes={data.notes} />
         </aside>
       </div>

@@ -108,7 +108,7 @@ function JobsTable({ jobs }: { jobs: JobListItem[] }) {
           >
             <td className="max-md:col-span-2 max-md:!p-0">
               <Link
-                href={`/recruiter/jobs/${job.id}/edit`}
+                href={`/recruiter/jobs/${job.id}/applicants`}
                 className="font-medium text-navy underline-offset-4 transition-colors hover:text-brand-dark hover:underline"
               >
                 {job.title}
@@ -134,7 +134,7 @@ function JobsTable({ jobs }: { jobs: JobListItem[] }) {
             </td>
             <td className="whitespace-nowrap text-right max-md:col-span-2 max-md:mt-1.5 max-md:!p-0 max-md:text-left">
               <Button asChild variant="ghost" size="sm" className="mr-2">
-                <Link href={`/recruiter/jobs/${job.id}/applicants`}>Applicants</Link>
+                <Link href={`/recruiter/jobs/${job.id}/edit`}>Edit</Link>
               </Button>
               <JobStatusButton jobId={job.id} status={job.status} />
             </td>

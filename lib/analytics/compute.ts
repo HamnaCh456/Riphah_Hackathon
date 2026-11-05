@@ -79,8 +79,8 @@ export const stageLabel = (status: ApplicationStatus) => STAGE_LABELS[status];
 
 /** The applicants behind a number, and the heading for that list. Null if the key is unknown. */
 export function drillDown(dashboard: Dashboard, metric: string): { title: string; ids: string[] } | null {
-  if (metric === 'applications') return { title: 'Applications', ids: dashboard.applications };
-  if (metric === 'shortlisted') return { title: 'Shortlisted', ids: dashboard.shortlisted };
+  if (metric === 'applications') return { title: 'Applicants', ids: dashboard.applications };
+  if (metric === 'shortlisted') return { title: 'Reached shortlist', ids: dashboard.shortlisted };
   if (metric === 'pending') return { title: 'Under review', ids: dashboard.pending };
 
   const [kind, value] = [metric.slice(0, metric.indexOf(':')), metric.slice(metric.indexOf(':') + 1)];

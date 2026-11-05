@@ -10,7 +10,8 @@
 .list > li + li { border-top: 1px solid var(--hairline-soft); }
 .row { padding: var(--spacing-12) var(--spacing-16); transition: background-color .15s; }
 .row:hover { background: var(--wash); }
-.rowLink { display: grid; grid-template-columns: 170px minmax(120px, 1fr) minmax(120px, 1fr) minmax(160px, 1fr) 90px; align-items: center; gap: var(--spacing-16); color: inherit; text-decoration: none; }
+.rowLink { display: grid; width: 100%; grid-template-columns: 170px minmax(120px, 1fr) minmax(120px, 1fr) minmax(160px, 1fr) 90px; align-items: center; gap: var(--spacing-16); color: inherit; text-align: left; cursor: pointer; border-radius: var(--radius-small); }
+.rowLink:hover .who { color: var(--color-brand-dark); }
 .time { width: fit-content; padding: 2px 8px; border-radius: 999px; background: var(--color-tint); font: 500 13px var(--font-matter); font-variant-numeric: tabular-nums; color: var(--color-brand-dark); }
 .who { color: var(--color-navy); font-weight: 500; }
 .status { color: var(--color-muted); }
@@ -18,6 +19,8 @@
 .conflict::before { content: '! '; font-weight: 500; }
 .actions { display: flex; align-items: center; gap: var(--spacing-12); flex-wrap: wrap; margin-top: var(--spacing-12); }
 .field { display: block; margin-bottom: var(--spacing-12); }
+.fieldGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-12); }
+.fieldWide { grid-column: 1 / -1; display: block; }
 .textarea { display: block; width: 100%; margin-top: 4px; padding: var(--spacing-12); background: var(--color-surface); color: var(--color-ink); border: 1px solid var(--hairline); border-radius: var(--radius-small); font: 400 14px/1.5 var(--font-matter); }
 .textarea:focus { border-color: var(--color-brand); }
 .alert { margin: 0 0 var(--spacing-12); padding: var(--spacing-12); border: 1px solid var(--color-danger); border-radius: var(--radius-small); color: var(--color-ink); }
@@ -28,10 +31,18 @@
 .scale button { width: 36px; height: 36px; border: 1px solid var(--hairline); border-radius: var(--radius-small); background: transparent; color: var(--color-ink); font-variant-numeric: tabular-nums; cursor: pointer; }
 .scale button:hover { background: var(--wash); border-color: var(--hairline-strong); }
 .scale button[aria-checked='true'] { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
-.feedback { margin: var(--spacing-12) 0 0; line-height: 1.6; }
+.feedback { display: grid; gap: 6px; margin: var(--spacing-12) 0 0; line-height: 1.45; }
 .feedback dt { color: var(--color-muted); }
-.feedback dd { margin: 0 0 8px; color: var(--color-ink); }
+.feedback dd { margin: 0; color: var(--color-ink); overflow-wrap: anywhere; }
+.ratingLine { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-12); }
+.dots { display: inline-flex; gap: 3px; vertical-align: middle; }
+.dot, .dotOn { width: 9px; height: 9px; border-radius: 999px; }
+.dot { background: var(--hairline); }
+.dotOn { background: var(--color-brand); }
 
+@media (max-width: 480px) {
+  .fieldGrid { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 1080px) {
   .rowLink { grid-template-columns: 1fr; gap: 2px; }
 }

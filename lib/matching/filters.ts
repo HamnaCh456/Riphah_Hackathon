@@ -13,6 +13,7 @@ export interface ApplicantRow {
 }
 
 export interface ApplicantFilters {
+  name?: string;
   minScore?: number;
   skill?: string;
   status?: string;
@@ -31,7 +32,8 @@ export function rankApplicants(rows: ApplicantRow[]): ApplicantRow[] {
 
 export function filterApplicants(rows: ApplicantRow[], f: ApplicantFilters): ApplicantRow[] {
   return rows.filter((r) =>
-    (f.minScore === undefined || (r.score ?? -1) >= f.minScore)
+    (!f.name || r.name.toLowerCase().includes(f.name.trim().toLowerCase()))
+    && (f.minScore === undefined || (r.score ?? -1) >= f.minScore)
     && (!f.skill || r.backedSkills.includes(f.skill))
     && (!f.status || r.status === f.status)
     && (!f.needsReview || r.needsReview)

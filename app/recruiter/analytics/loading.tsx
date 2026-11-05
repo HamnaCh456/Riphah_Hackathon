@@ -3,9 +3,9 @@ import { PageSkeleton, Skeleton, StatCardsSkeleton, TitleSkeleton } from '@/comp
 export default function Loading() {
   return (
     <PageSkeleton>
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+      <div className="mb-4 flex items-center justify-between gap-4">
         <TitleSkeleton className="w-40" />
-        <Skeleton className="h-12 w-60" />
+        <Skeleton className="h-9 w-32" />
       </div>
       <StatCardsSkeleton />
       <Skeleton className="mt-4 h-36 w-full rounded-card" />

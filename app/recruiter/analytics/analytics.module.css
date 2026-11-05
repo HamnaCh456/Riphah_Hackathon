@@ -1,45 +1,39 @@
 /* app/recruiter/analytics/analytics.module.css */
 .page { font-size: 14px; color: var(--color-muted); }
-.header { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--spacing-16); flex-wrap: wrap; margin-bottom: var(--spacing-16); }
+.header { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-16); margin-bottom: var(--spacing-16); }
 .title { margin: 0; font: 600 24px/1.3 var(--font-matter); letter-spacing: -.015em; color: var(--color-navy); }
-.filter { min-width: 240px; }
 .section { margin: 0 0 var(--spacing-12); font: 600 15px var(--font-matter); letter-spacing: -.01em; color: var(--color-navy); }
 
 .tiles { list-style: none; margin: 0 0 var(--spacing-16); padding: 0; display: flex; flex-wrap: wrap; gap: var(--spacing-12); }
 .tiles li { flex: 1 1 150px; }
 
-/* The recruitment pipeline. Light stages are the system's, dark stages are a recruiter's call. */
+/* The recruitment pipeline: a count in a circle per stage, in order, with a chevron between. */
 .pipelineCard { margin-bottom: var(--spacing-16); padding: var(--spacing-16); }
-.pipeline { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)) minmax(92px, .7fr); gap: 4px; }
-.stage { --tip: 12px; position: relative; display: flex; flex-direction: column; justify-content: center; gap: 4px; height: 100%; min-height: 84px; padding: 10px 12px 10px calc(var(--tip) + 12px); text-decoration: none; clip-path: polygon(0 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, 0 100%, var(--tip) 50%); transition: filter .15s, transform .15s; }
-li:first-child > .stage { padding-left: 14px; border-radius: var(--radius-small) 0 0 var(--radius-small); clip-path: polygon(0 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, 0 100%); }
-.stage:hover { filter: brightness(.94); transform: translateY(-1px); }
-.stage:focus-visible { outline-offset: -5px; outline-color: currentColor; }
-.stageCount { font: 600 24px/1 var(--font-matter); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.stageLabel { font-size: 13px; line-height: 1.2; }
-.s0 { background: #e3eefb; color: var(--color-navy); }
-.s1 { background: #d2e3f8; color: var(--color-navy); }
-.s2 { background: #bcd4f3; color: var(--color-navy); }
-.s3 { background: #a3c4ee; color: var(--color-navy); }
-.s4 { background: var(--color-brand); color: #fff; }
-.s5 { background: var(--color-brand-dark); color: #fff; }
-.s6 { background: var(--color-navy); color: #fff; }
-.stageOut { display: flex; flex-direction: column; justify-content: center; gap: 4px; height: 100%; min-height: 84px; padding: 10px 12px; border-radius: var(--radius-small); background: var(--color-danger-soft); color: var(--color-danger); text-decoration: none; transition: filter .15s, transform .15s; }
-.stageOut:hover { filter: brightness(.96); transform: translateY(-1px); }
-.decided { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1.1; font-weight: 500; }
+.pipeline { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)) minmax(92px, .9fr); }
+.step, .stepOut { position: relative; }
+.step:not(:nth-child(7))::after { content: ''; position: absolute; top: 26px; right: -4px; width: 8px; height: 8px; border-top: 1.5px solid var(--hairline-strong); border-right: 1.5px solid var(--hairline-strong); transform: rotate(45deg); }
+.stepOut { border-left: 1px solid var(--hairline); }
+.stage { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; padding: 4px 6px; border-radius: var(--radius-small); text-align: center; text-decoration: none; }
+.node { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1.5px solid var(--hairline); border-radius: 999px; background: var(--color-surface); color: var(--color-muted); font: 600 16px var(--font-matter); font-variant-numeric: tabular-nums; transition: box-shadow .15s; }
+.stage:hover .node { box-shadow: 0 0 0 4px var(--color-tint); }
+.stage:hover .stageLabel { color: var(--color-brand-dark); }
+.stageLabel { font-size: 13px; line-height: 1.2; color: var(--color-ink); transition: color .15s; }
+.on_submitted, .on_parsed, .on_assessed, .on_in_review { border-color: transparent; background: var(--color-tint); color: var(--color-navy); }
+.on_shortlisted { border-color: transparent; background: var(--color-brand); color: #fff; }
+.on_interview { border-color: transparent; background: var(--color-brand-dark); color: #fff; }
+.on_selected { border-color: transparent; background: var(--color-navy); color: #fff; }
+.on_rejected { border-color: transparent; background: var(--color-danger-soft); color: var(--color-danger); }
+.decided { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1.1; color: var(--color-muted); }
 .decided::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 999px; background: var(--color-gold-bright); }
 
-.account { margin-top: var(--spacing-32); }
-.charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-16); align-items: start; }
+.charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-16); }
 .chart { padding: var(--spacing-16); }
-.bars { list-style: none; margin: 0; padding: 0; }
-.bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'label value' 'track track'; gap: 6px var(--spacing-12); padding: 8px; border-radius: var(--radius-small); color: inherit; text-decoration: none; transition: background-color .15s; }
-.bar:hover { background: var(--wash); }
-.bar:hover .barLabel { color: var(--color-brand-dark); }
-.barLabel { grid-area: label; overflow-wrap: anywhere; color: var(--color-ink); transition: color .15s; }
-.barValue { grid-area: value; font: 400 13px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--color-ink); text-align: right; }
-.barTrack { grid-area: track; display: block; height: 8px; border-radius: 999px; background: var(--color-page); overflow: hidden; }
-.barFill { display: block; height: 100%; border-radius: 999px; background: var(--color-teal); transition: width .4s ease-out; }
+.rings { list-style: none; margin: 0 -8px -8px; padding: 0; }
+.ringRow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--spacing-12); padding: 6px 8px; border-radius: var(--radius-small); color: inherit; text-decoration: none; transition: background-color .15s; }
+.ringRow:hover { background: var(--wash); }
+.ringRow:hover .ringLabel { color: var(--color-brand-dark); }
+.ringLabel { overflow-wrap: anywhere; color: var(--color-ink); transition: color .15s; }
+.ringDetail { font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; }
 
 .list { list-style: none; margin: var(--spacing-12) 0 0; padding: 0; background: var(--color-surface); border: 1px solid var(--hairline); border-radius: var(--radius-card); box-shadow: var(--shadow-card); overflow: hidden; }
 .list li + li { border-top: 1px solid var(--hairline-soft); }
@@ -50,12 +44,12 @@ li:first-child > .stage { padding-left: 14px; border-radius: var(--radius-small)
 .breadcrumb a { color: var(--color-brand); }
 .breadcrumb a:hover { color: var(--color-brand-dark); }
 
-@media (max-width: 1240px) {
-  .pipeline { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .stage, li:first-child > .stage { --tip: 0px; padding-left: 12px; clip-path: none; border-radius: var(--radius-small); }
+@media (max-width: 860px) {
+  .pipeline { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: var(--spacing-16); }
+  .step::after, .step:not(:nth-child(7))::after { display: none; }
+  .stepOut { border-left: 0; }
 }
 @media (max-width: 680px) {
-  .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .charts { grid-template-columns: minmax(0, 1fr); }
   .row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }

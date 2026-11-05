@@ -1,34 +1,38 @@
 // app/recruiter/interviews/page.tsx
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { InterviewCard } from '@/app/recruiter/applications/[id]/interview/InterviewCard';
 import { requireRecruiter } from '@/lib/auth/guards';
 import { db } from '@/lib/db';
 import { flagConflicts, type Slot } from '@/lib/interviews/conflicts';
 import { INTERVIEW_TYPES } from '@/lib/interviews/schemas';
-import { formatDay, formatTimeRange } from '@/lib/interviews/time';
+import { INTERVIEW_COLUMNS, loadInterviewers, type InterviewRow } from '@/lib/interviews/read';
+import { formatDay, formatTimeRange, toPktFields } from '@/lib/interviews/time';
+import { InterviewDetails } from './InterviewDetails';
 import styles from './interviews.module.css';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Interviews' };
 
-type Row = {
-  id: string; application_id: string; interviewer_id: string; candidate_id: string;
-  starts_at: string; ends_at: string; status: Slot['status']; type: string;
-  interviewers: { name: string };
-  applications: { jobs: { title: string }; candidate: { full_name: string } };
+type Row = InterviewRow & {
+  application_id: string; candidate_id: string;
+  applications: { job_id: string; jobs: { title: string }; candidate: { full_name: string } };
 };
 
 const typeLabel = (value: string) => INTERVIEW_TYPES.find((t) => t.value === value)?.label ?? value;
 
 export default async function InterviewsPage() {
   const recruiter = await requireRecruiter();
-  const { data, error } = await db().from('interviews')
-    .select(`id, application_id, interviewer_id, candidate_id, starts_at, ends_at, status, type,
-      interviewers(name),
-      applications(jobs(title), candidate:profiles!applications_candidate_id_fkey(full_name))`)
-    .eq('recruiter_id', recruiter.id)
-    .order('starts_at');
+  const [{ data, error }, interviewers] = await Promise.all([
+    db().from('interviews')
+      .select(`${INTERVIEW_COLUMNS}, application_id, candidate_id,
+        applications(job_id, jobs(title), candidate:profiles!applications_candidate_id_fkey(full_name))`)
+      .eq('recruiter_id', recruiter.id)
+      .order('starts_at'),
+    loadInterviewers(recruiter.id),
+  ]);
   if (error) throw error;
+  const today = toPktFields(new Date().toISOString()).date;
 
   const rows = (data ?? []) as unknown as Row[];
   const flagged = flagConflicts(rows.map((r) => ({
@@ -56,13 +60,25 @@ export default async function InterviewsPage() {
 
   const renderRow = (row: Row) => (
     <li key={row.id} className={styles.row}>
-      <Link href={`/recruiter/applications/${row.application_id}/interview`} className={styles.rowLink}>
-        <span className={styles.time}>{formatTimeRange(row.starts_at, row.ends_at)}</span>
-        <span className={styles.who}>{row.applications.candidate.full_name}</span>
-        <span>{row.applications.jobs.title}</span>
-        <span>{typeLabel(row.type)} · {row.interviewers.name}</span>
-        {row.status !== 'scheduled' && <Badge tone={row.status === 'completed' ? 'teal' : 'neutral'}>{row.status === 'completed' ? 'Completed' : 'Cancelled'}</Badge>}
-      </Link>
+      <InterviewDetails
+        title={`${row.applications.candidate.full_name} · ${row.applications.jobs.title}`}
+        row={
+          <>
+            <span className={styles.time}>{formatTimeRange(row.starts_at, row.ends_at)}</span>
+            <span className={styles.who}>{row.applications.candidate.full_name}</span>
+            <span>{row.applications.jobs.title}</span>
+            <span>{typeLabel(row.type)} · {row.interviewers.name}</span>
+            {row.status !== 'scheduled' && <Badge tone={row.status === 'completed' ? 'teal' : 'neutral'}>{row.status === 'completed' ? 'Completed' : 'Cancelled'}</Badge>}
+          </>
+        }
+      >
+        <InterviewCard applicationId={row.application_id} row={row} interviewers={interviewers} today={today} />
+        <p className="mt-4">
+          <Link href={`/recruiter/jobs/${row.applications.job_id}/applicants/${row.application_id}`} className="textlink">
+            Open applicant
+          </Link>
+        </p>
+      </InterviewDetails>
       {describe(row).map((message) => <p key={message} className={styles.conflict}>Conflict: {message}</p>)}
     </li>
   );

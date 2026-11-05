@@ -21,12 +21,9 @@ export function StatCardsSkeleton({ count = 5 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="card flex items-center gap-3 p-4">
-          <Skeleton className="size-10 shrink-0 rounded-[10px]" />
-          <div className="min-w-0 flex-1">
-            <Skeleton className="h-7 w-12" />
-            <Skeleton className="mt-1.5 h-3.5 w-full max-w-24" />
-          </div>
+        <div key={i} className="card px-4 py-3.5">
+          <Skeleton className="h-7 w-12" />
+          <Skeleton className="mt-1.5 h-3.5 w-full max-w-24" />
         </div>
       ))}
     </div>

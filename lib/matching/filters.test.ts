@@ -39,6 +39,8 @@ describe('filterApplicants', () => {
   });
   it('filters by each control', () => {
     expect(filterApplicants(rows, { minScore: 50 }).map((r) => r.applicationId)).toEqual(['a']);
+    expect(filterApplicants(rows, { name: rows[0].name.toUpperCase() }).map((r) => r.applicationId)).toContain(rows[0].applicationId);
+    expect(filterApplicants(rows, { name: 'no such person' })).toHaveLength(0);
     expect(filterApplicants(rows, { skill: 'Docker' }).map((r) => r.applicationId)).toEqual(['a']);
     expect(filterApplicants(rows, { status: 'rejected' }).map((r) => r.applicationId)).toEqual(['b']);
     expect(filterApplicants(rows, { needsReview: true }).map((r) => r.applicationId)).toEqual(['b']);

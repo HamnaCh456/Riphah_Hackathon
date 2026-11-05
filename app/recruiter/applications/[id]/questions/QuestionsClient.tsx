@@ -51,11 +51,11 @@ function Question({ q, canEdit }: { q: QuestionRow; canEdit: boolean }) {
           <textarea className={styles.field} rows={5} value={guidelines} onChange={(e) => setGuidelines(e.target.value)} />
         </label>
         <div className={styles.actions}>
-          <Button variant="primary" disabled={pending} onClick={() =>
+          <Button variant="primary" size="sm" disabled={pending} onClick={() =>
             run(() => updateQuestionAction(q.id, { question, answer_guidelines: guidelines }), 'Question saved', () => setEditing(false))}>
             Save question
           </Button>
-          <Button variant="ghost" disabled={pending} onClick={() => {
+          <Button variant="ghost" size="sm" disabled={pending} onClick={() => {
             setQuestion(q.question); setGuidelines(q.answer_guidelines); setEditing(false);
           }}>Cancel</Button>
         </div>
@@ -85,27 +85,28 @@ function Question({ q, canEdit }: { q: QuestionRow; canEdit: boolean }) {
       {canEdit && (confirm ? (
         <div className={styles.actions}>
           <span>{confirm === 'remove' ? 'Remove this question?' : 'Replace your edited question?'}</span>
-          <Button variant="ghost" disabled={pending} onClick={confirm === 'remove' ? remove : regenerate}>
+          <Button variant="ghost" size="sm" disabled={pending} onClick={confirm === 'remove' ? remove : regenerate}>
             {confirm === 'remove' ? 'Remove' : 'Replace'}
           </Button>
-          <Button variant="ghost" disabled={pending} onClick={() => setConfirm(null)}>Keep</Button>
+          <Button variant="ghost" size="sm" disabled={pending} onClick={() => setConfirm(null)}>Keep</Button>
         </div>
       ) : (
         <div className={styles.actions}>
-          <Button variant="ghost" disabled={pending} onClick={() => setEditing(true)}>Edit</Button>
-          <Button variant="ghost" disabled={pending}
+          <Button variant="ghost" size="sm" disabled={pending} onClick={() => setEditing(true)}>Edit</Button>
+          <Button variant="ghost" size="sm" disabled={pending}
             onClick={() => (q.edited ? setConfirm('regenerate') : regenerate())}>
             {pending ? 'Writing…' : 'Regenerate'}
           </Button>
-          <Button variant="ghost" disabled={pending} onClick={() => setConfirm('remove')}>Remove</Button>
+          <Button variant="ghost" size="sm" disabled={pending} onClick={() => setConfirm('remove')}>Remove</Button>
         </div>
       ))}
     </li>
   );
 }
 
+/** Without a breadcrumb it sits inside the pop-up, which already has the title. */
 export function QuestionsClient({ applicationId, breadcrumb, canEdit, hasProjects, questions }: {
-  applicationId: string; breadcrumb: ReactNode; canEdit: boolean; hasProjects: boolean; questions: QuestionRow[];
+  applicationId: string; breadcrumb?: ReactNode; canEdit: boolean; hasProjects: boolean; questions: QuestionRow[];
 }) {
   const { pending, run } = useAction();
   const hasEdited = questions.some((q) => q.edited);
@@ -115,12 +116,14 @@ export function QuestionsClient({ applicationId, breadcrumb, canEdit, hasProject
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <div>
-          <p className={styles.breadcrumb}>{breadcrumb}</p>
-          <h1 className={styles.title}>Interview questions</h1>
-        </div>
+        {breadcrumb && (
+          <div>
+            <p className={styles.breadcrumb}>{breadcrumb}</p>
+            <h1 className={styles.title}>Interview questions</h1>
+          </div>
+        )}
         {canEdit && (
-          <Button variant="primary" loading={pending}
+          <Button variant="primary" size="sm" loading={pending}
             onClick={() => run(() => generateSetAction(applicationId), 'Questions ready')}>
             {pending ? 'Writing questions…' : questions.length ? 'Regenerate all' : 'Generate questions'}
           </Button>

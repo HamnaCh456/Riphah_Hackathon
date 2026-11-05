@@ -13,10 +13,8 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 export type SaveResult = ActionResult | { ok: false; conflicts: string[] };
 export type DecisionResult = ActionResult | { ok: false; needsNoFeedbackConfirm: true };
 
-function refresh(applicationId: string) {
-  revalidatePath('/recruiter/interviews');
-  revalidatePath(`/recruiter/applications/${applicationId}/interview`);
-  revalidatePath('/recruiter/analytics');
+function refresh() {
+  revalidatePath('/recruiter', 'layout');
   revalidatePath('/candidate/applications');
 }
 
@@ -138,7 +136,22 @@ export async function saveInterviewAction(raw: unknown): Promise<SaveResult> {
     input.interviewId ? `Interview moved: ${app.jobTitle}` : `Interview scheduled: ${app.jobTitle}`,
     `Your interview is on ${when}.`);
 
-  refresh(app.id);
+  refresh();
+  return { ok: true };
+}
+
+/** Moves a shortlisted applicant to the interview stage with no date yet. */
+export async function moveToInterviewAction(applicationId: string): Promise<ActionResult> {
+  const recruiter = await requireRecruiter();
+  const app = await getOwnedApplication(applicationId, recruiter.id);
+  if (!app) return { ok: false, error: "You can't change this application." };
+  try {
+    await changeApplicationStatus({ applicationId: app.id, to: 'interview' });
+  } catch (error) {
+    console.error('moveToInterviewAction', error);
+    return { ok: false, error: 'Couldn’t move this applicant to interview. Try again.' };
+  }
+  refresh();
   return { ok: true };
 }
 
@@ -158,7 +171,7 @@ export async function cancelInterviewAction(interviewId: string): Promise<Action
 
   await notify(app.candidateId, `Interview cancelled: ${app.jobTitle}`,
     `Your interview on ${formatDay(interview.starts_at)} was cancelled.`);
-  refresh(app.id);
+  refresh();
   return { ok: true };
 }
 
@@ -183,7 +196,7 @@ export async function saveFeedbackAction(raw: unknown): Promise<ActionResult> {
     .update({ status: 'completed', updated_at: now }).eq('id', interviewId);
   if (statusError) return { ok: false, error: 'Feedback saved, but the interview wasn’t marked completed. Try again.' };
 
-  refresh(interview.application_id);
+  refresh();
   return { ok: true };
 }
 
@@ -220,6 +233,6 @@ export async function recordDecisionAction(raw: unknown): Promise<DecisionResult
     input.decision === 'selected'
       ? 'You have been selected for this role.'
       : 'You were not selected for this role.');
-  refresh(app.id);
+  refresh();
   return { ok: true };
 }

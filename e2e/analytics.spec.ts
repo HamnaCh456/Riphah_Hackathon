@@ -35,9 +35,11 @@ test('job filter narrows the numbers, and a number opens its applicants', async 
   expect(await tile(page, 'Applicants')).toBe(1);
   expect(await tile(page, 'Under review')).toBe(1);
 
+  // Opens over the dashboard, without leaving it.
   await page.getByRole('link', { name: /Under review/ }).click();
-  await expect(page.getByRole('heading', { name: 'Under review' })).toBeVisible();
-  await expect(page.getByText(app.candidateName)).toBeVisible();
+  await expect(page.getByRole('dialog').getByRole('heading', { name: 'Under review' })).toBeVisible();
+  await expect(page.getByRole('dialog').getByText(app.candidateName)).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe('/recruiter/analytics');
 });
 
 test('skill gaps say no evidence, not that the skill is missing', async ({ page }) => {
