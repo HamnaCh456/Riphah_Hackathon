@@ -1,7 +1,20 @@
+import { createRateLimiter } from "@/lib/rate-limit";
 import { updateSession } from "@/lib/supabase/proxy";
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+
+// Form submissions, uploads and AI actions all arrive as POST. Normal use stays well under this.
+const isAllowed = createRateLimiter(120);
 
 export async function proxy(request: NextRequest) {
+  if (request.method === "POST") {
+    const client = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    if (!isAllowed(client ?? "unknown")) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a minute and try again." },
+        { status: 429, headers: { "Retry-After": "60" } },
+      );
+    }
+  }
   return await updateSession(request);
 }
 
