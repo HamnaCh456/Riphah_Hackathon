@@ -23,6 +23,7 @@ export async function scoreRedactedText(
   jobTitle: string,
   requirements: Requirement[],
   redactedText: string,
+  model: string,
 ): Promise<number> {
   const raw = chunkResume(redactedText).filter((c) => c.content.trim());
   if (raw.length === 0) throw new Error("This resume has no text to score.");
@@ -58,7 +59,7 @@ export async function scoreRedactedText(
       system: ASSESSMENT_SYSTEM_PROMPT,
       prompt: buildPrompt(jobTitle, items),
       responseSchema: assessmentResponseSchema,
-      singleModel: true,
+      pinnedModel: model,
     }),
   );
   const assessed = items.map(({ requirement, chunks }) =>

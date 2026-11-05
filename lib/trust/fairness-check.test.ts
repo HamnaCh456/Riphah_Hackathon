@@ -1,8 +1,19 @@
 import { expect, it, vi } from "vitest";
 
-import { runFairnessCheck } from "./fairness-check";
+import { runFairnessCheck, tryEachModel } from "./fairness-check";
 
 const RESUME = "Experience\nBuilt order services in Django and PostgreSQL.";
+
+it("redoes a whole comparison on the next model when one is unavailable", async () => {
+  const run = vi.fn().mockRejectedValueOnce(new Error("503")).mockResolvedValueOnce("done");
+  await expect(tryEachModel(["a", "b"], run)).resolves.toBe("done");
+  expect(run.mock.calls.map(([model]) => model)).toEqual(["a", "b"]);
+});
+
+it("reports a failure when every model is unavailable", async () => {
+  const run = vi.fn().mockRejectedValue(new Error("503"));
+  await expect(tryEachModel(["a", "b"], run)).rejects.toThrow("503");
+});
 
 it("does not re-score when redaction makes the input identical", async () => {
   const score = vi.fn().mockResolvedValue(70);

@@ -63,9 +63,16 @@ it("throws an AiError rather than inventing a result when every model fails", as
   await expect(generateJson(ARGS)).rejects.toBeInstanceOf(AiError);
 });
 
-it("never switches model when results will be compared", async () => {
-  generateContent.mockRejectedValue(new Error("429"));
-  await expect(generateJson({ ...ARGS, singleModel: true })).rejects.toBeInstanceOf(AiError);
-  expect(generateContent).toHaveBeenCalledTimes(1);
+it("retries but never switches model when results will be compared", async () => {
+  generateContent.mockRejectedValue(new Error("503"));
+  await expect(generateJson({ ...ARGS, pinnedModel: "pinned" })).rejects.toBeInstanceOf(AiError);
+  expect(modelsTried()).toEqual(["pinned", "pinned"]);
   expect(generateOpenAiJson).not.toHaveBeenCalled();
+});
+
+it("gets through a brief overload on a pinned model", async () => {
+  generateContent
+    .mockRejectedValueOnce(new Error("503"))
+    .mockResolvedValueOnce({ text: '{"ok":true}' });
+  await expect(generateJson({ ...ARGS, pinnedModel: "pinned" })).resolves.toEqual({ ok: true });
 });

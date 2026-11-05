@@ -77,6 +77,25 @@ export function fairnessVerdict(results: FairnessResult[], noise: number): Fairn
   return biggest <= Math.max(MIN_TOLERANCE, noise) ? "passed" : "failed";
 }
 
+/**
+ * Runs a whole comparison on one model, moving to the next only if that one is unavailable.
+ * Mixing models inside a comparison would look like a real score difference.
+ */
+export async function tryEachModel<T>(
+  models: string[],
+  run: (model: string) => Promise<T>,
+): Promise<T> {
+  let lastError: unknown;
+  for (const model of models) {
+    try {
+      return await run(model);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
 /** `resume` must already be redacted, and `score` receives redacted text like the real pipeline. */
 export async function runFairnessCheck(
   resume: string,

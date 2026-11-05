@@ -40,7 +40,8 @@ The AI can't infer confirmed absence from silence.
 - Status changes go through one database function that checks the move and writes an append-only audit row. A direct update is refused, even with the secret key.
 - Recruiters can override any AI result or extracted skill, with a written reason. The original result is kept.
 - Name, contact details and similar personal details are removed before resume text reaches the AI for scoring.
-- The fairness check on each applicant page scores the resume again with personal details changed (name, gender, age, nationality, religion, marital status) and shows whether the result moves. The saved score stays as it was.
+- The fairness check on each applicant page scores the resume again with personal details changed (name, gender, age, nationality, religion, marital status) and shows whether the result moves. It says inconclusive if identical runs vary too much to tell. The saved score stays as it was.
+- Nothing merges without a recruiter choosing the record to keep and confirming. Talent pool search only includes candidates who opted in.
 - Candidates only see a simplified status, through database functions. They never see scores, gaps, notes or AI results.
 
 ## Architecture
@@ -60,7 +61,8 @@ Browser
 | `lib/pipeline` | Status moves and labels |
 | `lib/interview-questions`, `lib/interviews` | Question generation, scheduling, conflicts, feedback |
 | `lib/analytics` | Every dashboard number, calculated by code |
-| `lib/talent`, `lib/trust` | Semantic search, fairness check |
+| `lib/talent`, `lib/trust`, `lib/duplicates` | Semantic search, talent pool, job recommendations, claim support check, fairness check, duplicate detection |
+| `lib/compare` | Side-by-side applicant comparison |
 | `supabase/migrations` | Schema and access rules |
 
 ## Security
@@ -89,4 +91,5 @@ Unit tests cover scoring, quote verification, redaction, skill normalization, fi
 
 - The Gemini free tier allows few requests per day per model. The client falls back to other Gemini models when one is out of quota or overloaded, then to OpenAI gpt-4o-mini, at about $0.0003 per assessment. Vectors stay on Gemini, because vectors from two models cannot be compared.
 - Interview notifications are simulated in the app, as the brief allows.
-- Duplicate application detection isn't built. It was the planned first cut.
+- Merging duplicates links the two records and moves no data. There's no undo button; clearing `profiles.merged_into` and the `duplicate_decisions` row reverses a merge.
+- An application stops appearing in talent search and the talent pool 180 days after it was made. Nothing is deleted automatically.

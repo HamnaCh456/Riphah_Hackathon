@@ -2,12 +2,13 @@
 
 import { z } from "zod";
 
+import { COMPARISON_MODELS } from "@/lib/ai/gemini";
 import { requireRecruiter } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
 import { redact } from "@/lib/matching/redact";
 import { buildRequirements } from "@/lib/matching/requirements";
 
-import { runFairnessCheck, type FairnessReport } from "./fairness-check";
+import { runFairnessCheck, tryEachModel, type FairnessReport } from "./fairness-check";
 import { scoreRedactedText } from "./score-text";
 
 export type FairnessActionResult =
@@ -53,9 +54,11 @@ export async function runFairnessAction(
       return { ok: false, message: "This job has no requirements to check against." };
     }
 
-    const report = await runFairnessCheck(
-      redact(resume.raw_text, resume.parsed?.name ?? null),
-      (text) => scoreRedactedText(job.title, requirements, text),
+    const redacted = redact(resume.raw_text, resume.parsed?.name ?? null);
+    const report = await tryEachModel(COMPARISON_MODELS, (model) =>
+      runFairnessCheck(redacted, (text) =>
+        scoreRedactedText(job.title, requirements, text, model),
+      ),
     );
     return { ok: true, report };
   } catch (error) {

@@ -9,7 +9,11 @@ import { generateOpenAiJson, OPENAI_MODEL } from "./openai";
 // Tried in order. Quotas are per model, so when one runs out or is overloaded the next still works.
 // Google has closed the 2.5 models to new API keys, so only models this key can reach are listed.
 const MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.5-flash"];
+/** Free models a comparison can run on. A comparison uses one of these from start to finish. */
+export const COMPARISON_MODELS = MODELS.slice(0, 2);
 const TIMEOUT_MS = 25_000;
+const PINNED_TIMEOUT_MS = 12_000;
+const PINNED_RETRY_DELAYS_MS = [0, 1_500];
 // Together these stay below the 60-second page limit, so the caller can still show a retry message.
 const GEMINI_BUDGET_MS = 30_000;
 const OPENAI_TIMEOUT_MS = 25_000;
@@ -48,22 +52,27 @@ async function attempt(
 
 /**
  * Returns the parsed JSON answer, trying the free Gemini models first and paid OpenAI last.
- * Set singleModel when results will be compared, because a model change would look like a real
+ * Set pinnedModel when results will be compared, because a model change would look like a real
  * difference. Throws AiError if every try fails.
  */
 export async function generateJson(args: {
   system: string;
   prompt: string;
   responseSchema: object;
-  singleModel?: boolean;
+  pinnedModel?: string;
 }): Promise<unknown> {
-  if (args.singleModel) {
-    try {
-      return await attempt(MODELS[0], TIMEOUT_MS, args);
-    } catch (error) {
-      console.error(`Gemini model ${MODELS[0]} failed`, error);
-      throw new AiError("The AI service did not return a usable answer", { cause: error });
+  if (args.pinnedModel) {
+    let lastError: unknown;
+    for (const wait of PINNED_RETRY_DELAYS_MS) {
+      if (wait > 0) await new Promise((done) => setTimeout(done, wait));
+      try {
+        return await attempt(args.pinnedModel, PINNED_TIMEOUT_MS, args);
+      } catch (error) {
+        lastError = error;
+      }
     }
+    console.error(`Gemini model ${args.pinnedModel} failed`, lastError);
+    throw new AiError("The AI service did not return a usable answer", { cause: lastError });
   }
 
   const deadline = Date.now() + GEMINI_BUDGET_MS;
