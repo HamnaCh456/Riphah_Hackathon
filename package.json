@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@google/genai": "latest",
+    "@google/genai": "^2.32.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-label": "^2.1.6",
     "@radix-ui/react-popover": "^1.1.15",
@@ -20,14 +20,14 @@
     "@supabase/supabase-js": "2.119.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "mammoth": "latest",
+    "mammoth": "^1.13.0",
     "next": "16.4.5",
     "react": "^19.0.0",
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.0.0",
-    "server-only": "latest",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.3.0",
-    "unpdf": "latest",
+    "unpdf": "^2.1.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {
