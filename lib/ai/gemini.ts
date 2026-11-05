@@ -7,7 +7,8 @@ import { serverEnv } from "@/lib/env";
 import { generateOpenAiJson, OPENAI_MODEL } from "./openai";
 
 // Tried in order. Quotas are per model, so when one runs out or is overloaded the next still works.
-const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3.5-flash-lite"];
+// Google has closed the 2.5 models to new API keys, so only models this key can reach are listed.
+const MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.5-flash"];
 const TIMEOUT_MS = 25_000;
 // Together these stay below the 60-second page limit, so the caller can still show a retry message.
 const GEMINI_BUDGET_MS = 30_000;
@@ -39,10 +40,6 @@ async function attempt(
       responseMimeType: "application/json",
       responseSchema: args.responseSchema,
       temperature: 0,
-      // Only the 2.5 models accept a thinking budget.
-      ...(model.startsWith("gemini-2.5")
-        ? { thinkingConfig: { thinkingBudget: 0 } }
-        : {}),
       abortSignal: AbortSignal.timeout(timeoutMs),
     },
   });
@@ -62,9 +59,9 @@ export async function generateJson(args: {
 }): Promise<unknown> {
   if (args.singleModel) {
     try {
-      return await attempt(MODELS[1], TIMEOUT_MS, args);
+      return await attempt(MODELS[0], TIMEOUT_MS, args);
     } catch (error) {
-      console.error(`Gemini model ${MODELS[1]} failed`, error);
+      console.error(`Gemini model ${MODELS[0]} failed`, error);
       throw new AiError("The AI service did not return a usable answer", { cause: error });
     }
   }

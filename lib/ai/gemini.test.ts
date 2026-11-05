@@ -26,7 +26,7 @@ beforeEach(() => {
 it("uses the first model when it works", async () => {
   generateContent.mockResolvedValue({ text: '{"ok":true}' });
   await expect(generateJson(ARGS)).resolves.toEqual({ ok: true });
-  expect(modelsTried()).toEqual(["gemini-2.5-flash"]);
+  expect(modelsTried()).toEqual(["gemini-3.5-flash-lite"]);
 });
 
 it("moves to the next model when the quota has run out", async () => {
@@ -34,7 +34,7 @@ it("moves to the next model when the quota has run out", async () => {
     .mockRejectedValueOnce(new Error("429 RESOURCE_EXHAUSTED"))
     .mockResolvedValueOnce({ text: '{"ok":true}' });
   await expect(generateJson(ARGS)).resolves.toEqual({ ok: true });
-  expect(modelsTried()).toEqual(["gemini-2.5-flash", "gemini-2.5-flash-lite"]);
+  expect(modelsTried()).toEqual(["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]);
 });
 
 it("moves on when a reply is not valid JSON", async () => {
@@ -42,18 +42,6 @@ it("moves on when a reply is not valid JSON", async () => {
     .mockResolvedValueOnce({ text: "not json" })
     .mockResolvedValueOnce({ text: '{"ok":true}' });
   await expect(generateJson(ARGS)).resolves.toEqual({ ok: true });
-});
-
-it("sends a thinking budget only to models that accept one", async () => {
-  generateContent
-    .mockRejectedValueOnce(new Error("429"))
-    .mockRejectedValueOnce(new Error("429"))
-    .mockResolvedValueOnce({ text: '{"ok":true}' });
-  await generateJson(ARGS);
-  const [flash, , newer] = generateContent.mock.calls.map(([call]) => call);
-  expect(flash.config.thinkingConfig).toBeDefined();
-  expect(newer.model).toBe("gemini-3.5-flash-lite");
-  expect(newer.config.thinkingConfig).toBeUndefined();
 });
 
 it("doesn't call paid OpenAI while a Gemini model works", async () => {
