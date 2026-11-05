@@ -46,6 +46,12 @@ describe("checkSupport", () => {
     expect(out.status).toBe("matched");
   });
 
+  it("checks a partial result as related experience, not as the skill itself", async () => {
+    const judge = vi.fn().mockResolvedValue([{ supported: true, reason: "Related." }]);
+    await checkSupport([item("a", "partial", "Tuned MySQL queries")], judge);
+    expect(judge.mock.calls[0][0][0].claim).toBe("Has experience closely related to: Skill a");
+  });
+
   it("skips the AI when nothing is being claimed", async () => {
     const judge = vi.fn();
     const out = await checkSupport([item("a", "no_evidence", null)], judge);
