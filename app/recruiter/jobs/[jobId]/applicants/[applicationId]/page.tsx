@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { AppShell } from '@/components/app-shell';
 import { ActionForm } from '@/components/matching/ActionForm';
+import { MergedNotice } from '@/components/duplicates/MergedNotice';
 import { AutoRefresh } from '@/components/matching/AutoRefresh';
 import { STATUS_LABELS } from '@/components/matching/labels';
 import { RequirementRow } from '@/components/matching/RequirementRow';
@@ -160,6 +161,11 @@ export default async function ApplicationPage({
         </div>
 
         <aside className="min-w-0 space-y-8">
+          <MergedNotice
+            candidateId={owned.candidateId}
+            applicationId={applicationId}
+            recruiterId={profile.id}
+          />
           <NotesPanel applicationId={applicationId} notes={data.notes} />
           <AuditTrail events={data.events} />
         </aside>

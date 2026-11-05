@@ -4,6 +4,7 @@ import {
   buildProfileText,
   matchSkills,
   parseInterests,
+  plainSnippet,
   toPublicRecommendation,
 } from "./recommend-logic";
 
@@ -31,6 +32,13 @@ it("matches a skill by normalised name or by meaning, and not otherwise", () => 
   expect(fits.has("Postgres")).toBe(true);
   expect(fits.has("Containers")).toBe(true);
   expect(fits.has("Marketing")).toBe(false);
+});
+
+it("shows job descriptions without markdown symbols", () => {
+  expect(plainSnippet("# Job Description: **Company:** TechNova\n\n- Build APIs")).toBe(
+    "Job Description: Company: TechNova - Build APIs",
+  );
+  expect(plainSnippet("word ".repeat(100), 20)).toBe("word word word word…");
 });
 
 it("limits interests typed into the page", () => {

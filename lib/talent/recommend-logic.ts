@@ -44,6 +44,15 @@ export function parseInterests(raw: string | undefined): string[] {
     .slice(0, 10);
 }
 
+/** A short plain-text preview: job descriptions are often pasted with markdown symbols. */
+export function plainSnippet(text: string, length = 200): string {
+  const plain = text
+    .replace(/[#*_`>|]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return plain.length > length ? `${plain.slice(0, length).trimEnd()}…` : plain;
+}
+
 type Internal = {
   jobId: string;
   title: string;

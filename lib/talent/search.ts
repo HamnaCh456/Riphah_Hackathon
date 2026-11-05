@@ -77,20 +77,30 @@ async function loadSearchableChunks(
   pool?: { excludeJobId: string },
 ): Promise<SearchableChunk[]> {
   const since = new Date(Date.now() - RETENTION_DAYS * 86_400_000).toISOString();
-  // For the talent pool: people who already applied to this job aren't "past applicants".
-  let alreadyApplied = new Set<string>();
+  // For the talent pool: people who already applied to this job aren't "past applicants", and
+  // someone is only included if they agreed to be considered for other jobs.
+  const alreadyApplied = new Set<string>();
+  const consented = new Set<string>();
   if (pool) {
-    const { data, error } = await db
-      .from("applications")
-      .select("candidate_id")
-      .eq("job_id", pool.excludeJobId);
-    if (error) throw error;
-    alreadyApplied = new Set(data.map((row) => row.candidate_id as string));
+    const [applied, preferences] = await Promise.all([
+      db
+        .from("applications")
+        .select("candidate_id, person:profiles(merged_into)")
+        .eq("job_id", pool.excludeJobId),
+      db.from("candidate_preferences").select("candidate_id").eq("talent_pool_consent", true),
+    ]);
+    if (applied.error) throw applied.error;
+    if (preferences.error) throw preferences.error;
+    for (const row of applied.data) {
+      const person = row.person as unknown as { merged_into: string | null } | null;
+      alreadyApplied.add(person?.merged_into ?? (row.candidate_id as string));
+    }
+    for (const row of preferences.data) consented.add(row.candidate_id as string);
   }
   const { data: applications, error } = await db
     .from("applications")
     .select(
-      "id, job_id, candidate_id, resume_id, status, created_at, job:jobs!inner(recruiter_id), person:profiles(full_name)",
+      "id, job_id, candidate_id, resume_id, status, created_at, job:jobs!inner(recruiter_id), person:profiles(full_name, merged_into)",
     )
     .eq("job.recruiter_id", recruiterId)
     .gt("created_at", since)
@@ -101,7 +111,18 @@ async function loadSearchableChunks(
   // Newest first, so a resume used twice links to its latest application.
   const byResume = new Map<string, (typeof applications)[number]>();
   for (const application of applications) {
-    if (pool && !isPastApplicant(application.status, application.candidate_id, alreadyApplied)) {
+    const merged = (application.person as unknown as { merged_into: string | null } | null)
+      ?.merged_into;
+    if (
+      pool &&
+      !isPastApplicant(
+        application.status,
+        application.candidate_id,
+        merged ?? application.candidate_id,
+        alreadyApplied,
+        consented,
+      )
+    ) {
       continue;
     }
     if (!byResume.has(application.resume_id)) {
@@ -119,15 +140,35 @@ async function loadSearchableChunks(
     .not("embedding", "is", null);
   if (chunkError) throw chunkError;
 
+  // A merged record shows as the person it was linked to, so they appear once in results.
+  const personOf = (application: (typeof applications)[number]) =>
+    application.person as unknown as {
+      full_name: string | null;
+      merged_into: string | null;
+    } | null;
+  const roots = [
+    ...new Set(
+      [...byResume.values()].flatMap((a) => personOf(a)?.merged_into ?? []),
+    ),
+  ];
+  const rootNames = new Map<string, string>();
+  if (roots.length > 0) {
+    const { data: rootRows, error: rootError } = await db
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", roots);
+    if (rootError) throw rootError;
+    for (const row of rootRows) rootNames.set(row.id, row.full_name);
+  }
+
   return chunks.map((chunk) => {
     const application = byResume.get(chunk.resume_id)!;
-    const person = application.person as unknown as {
-      full_name: string | null;
-    } | null;
+    const person = personOf(application);
+    const root = person?.merged_into;
     return {
       chunkId: chunk.id,
-      candidateId: application.candidate_id,
-      fullName: person?.full_name ?? null,
+      candidateId: root ?? application.candidate_id,
+      fullName: (root ? rootNames.get(root) : person?.full_name) ?? null,
       applicationId: application.id,
       jobId: application.job_id,
       content: chunk.content,

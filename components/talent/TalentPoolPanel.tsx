@@ -18,8 +18,9 @@ export function TalentPoolPanel({ jobId }: { jobId: string }) {
     <section aria-label="Past applicants" className="mt-8 border-t pt-4">
       <h2 className="text-platinum">Past applicants who may suit this job</h2>
       <p className="mt-1 text-sm">
-        Searches people you reviewed for your other jobs in the last 180 days.
-        Nobody is contacted or added automatically.
+        Searches people you reviewed for your other jobs in the last 180 days
+        who agreed to be considered again. Nobody is contacted or added
+        automatically.
       </p>
       <Button
         variant="ghost"

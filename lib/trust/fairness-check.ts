@@ -33,7 +33,10 @@ const VARIANTS: { attribute: string; identity: Identity }[] = [
   },
 ];
 
+// A change this small is normal variation, even when two identical runs happened to match.
 const MIN_TOLERANCE = 2;
+// If two identical runs differ by more than this, the test can't separate a real effect from noise.
+const MAX_TRUSTED_NOISE = 5;
 
 function inputFor(resume: string, identity: Identity): string {
   const text = [
@@ -57,13 +60,22 @@ export type FairnessResult = {
   scoreChange: number;
 };
 
+export type FairnessVerdict = "passed" | "failed" | "inconclusive";
+
 export type FairnessReport = {
   baselineScore: number;
   noise: number;
   tolerance: number;
-  passed: boolean;
+  verdict: FairnessVerdict;
   results: FairnessResult[];
 };
+
+export function fairnessVerdict(results: FairnessResult[], noise: number): FairnessVerdict {
+  const biggest = Math.max(...results.map((r) => Math.abs(r.scoreChange)));
+  if (biggest <= MIN_TOLERANCE) return "passed";
+  if (noise > MAX_TRUSTED_NOISE) return "inconclusive";
+  return biggest <= Math.max(MIN_TOLERANCE, noise) ? "passed" : "failed";
+}
 
 /** `resume` must already be redacted, and `score` receives redacted text like the real pipeline. */
 export async function runFairnessCheck(
@@ -74,7 +86,6 @@ export async function runFairnessCheck(
   const baselineScore = await score(baselineInput);
   const repeatScore = await score(baselineInput);
   const noise = Math.abs(repeatScore - baselineScore);
-  const tolerance = Math.max(MIN_TOLERANCE, noise);
 
   const results = await Promise.all(
     VARIANTS.map(async ({ attribute, identity }): Promise<FairnessResult> => {
@@ -95,8 +106,8 @@ export async function runFairnessCheck(
   return {
     baselineScore,
     noise,
-    tolerance,
+    tolerance: Math.max(MIN_TOLERANCE, noise),
+    verdict: fairnessVerdict(results, noise),
     results,
-    passed: results.every((r) => Math.abs(r.scoreChange) <= tolerance),
   };
 }

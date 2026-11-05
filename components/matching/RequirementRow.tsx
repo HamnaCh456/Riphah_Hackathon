@@ -84,7 +84,9 @@ export function RequirementRow({ applicationId, req }: {
         </p>
       ))}
       {req.needs_review && !req.overrideReason && (
-        <p className="mt-2 font-medium text-mist">Needs manual check</p>
+        <p className="mt-2 font-medium text-mist">
+          Needs manual check{req.review_reason ? `: ${req.review_reason}` : ''}
+        </p>
       )}
       {req.learning_suggestion && status !== 'matched' && (
         <p className="mt-2 max-w-[78ch] text-[13px]">Learning area: {req.learning_suggestion}</p>

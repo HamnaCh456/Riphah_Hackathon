@@ -22,6 +22,7 @@ export type RequirementRecord = StoredRequirement & {
   explanation: string;
   learning_suggestion: string | null;
   needs_review: boolean;
+  review_reason: string | null;
   assessment_evidence: EvidenceRecord[];
 };
 
@@ -159,7 +160,7 @@ export async function loadApplication(applicationId: string, recruiterId: string
     application_notes(id, body, created_at),
     assessments(status, error, started_at, assessment_requirements(
       id, requirement_key, component, label, importance, is_required, status, depth,
-      explanation, learning_suggestion, needs_review,
+      explanation, learning_suggestion, needs_review, review_reason,
       assessment_evidence(id, quote, section, verified, similarity)
     ))
   `).eq('id', applicationId).maybeSingle();

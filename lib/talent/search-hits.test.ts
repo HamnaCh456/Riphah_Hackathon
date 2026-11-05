@@ -7,13 +7,18 @@ import {
   type SearchableChunk,
 } from "./search-hits";
 
-it("includes only reviewed people who haven't applied to this job", () => {
+it("includes only reviewed people who agreed and haven't applied to this job", () => {
   const applied = new Set(["already"]);
-  expect(isPastApplicant("rejected", "p1", applied)).toBe(true);
-  expect(isPastApplicant("shortlisted", "p1", applied)).toBe(true);
-  expect(isPastApplicant("submitted", "p1", applied)).toBe(false);
-  expect(isPastApplicant("assessed", "p1", applied)).toBe(false);
-  expect(isPastApplicant("rejected", "already", applied)).toBe(false);
+  const agreed = new Set(["p1", "already", "merged"]);
+  const check = (status: string, id: string, person = id) =>
+    isPastApplicant(status, id, person, applied, agreed);
+  expect(check("rejected", "p1")).toBe(true);
+  expect(check("shortlisted", "p1")).toBe(true);
+  expect(check("submitted", "p1")).toBe(false);
+  expect(check("assessed", "p1")).toBe(false);
+  expect(check("rejected", "already")).toBe(false);
+  expect(check("rejected", "no-consent")).toBe(false);
+  expect(check("rejected", "merged", "already")).toBe(false);
 });
 
 it("drops personal needs and keeps job-related ones", () => {

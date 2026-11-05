@@ -22,13 +22,19 @@ export function dropPersonalFacets(facets: string[]): string[] {
 
 const REVIEWED = ["in_review", "shortlisted", "interview", "selected", "rejected"];
 
-/** The talent pool holds people a recruiter has reviewed who haven't applied to this job yet. */
+/** The talent pool: reviewed people who agreed to it and haven't applied to this job yet. */
 export function isPastApplicant(
   status: string,
   candidateId: string,
+  personId: string,
   alreadyApplied: Set<string>,
+  consented: Set<string>,
 ): boolean {
-  return REVIEWED.includes(status) && !alreadyApplied.has(candidateId);
+  return (
+    REVIEWED.includes(status) &&
+    consented.has(candidateId) &&
+    !alreadyApplied.has(personId)
+  );
 }
 
 /** Scores every chunk against every need. The evidence is always the stored resume text. */

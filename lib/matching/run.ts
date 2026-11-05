@@ -1,6 +1,8 @@
 import 'server-only';
 import { embedTexts, generateJson } from '@/lib/ai/gemini';
 import { db } from '@/lib/db';
+import { checkSupport } from '@/lib/trust/support-check';
+import { geminiSupportJudge } from '@/lib/trust/support-judge';
 import { chunkResume } from './chunk';
 import { ASSESSMENT_SYSTEM_PROMPT, assessmentOutput, assessmentResponseSchema, buildPrompt } from './prompt';
 import { redact } from './redact';
@@ -169,8 +171,8 @@ async function assess(applicationId: string, options: { retry?: boolean }): Prom
     })));
 
     const output = await askForAssessment(buildPrompt(job.title, items));
-    const assessed = items.map(({ requirement, chunks }) =>
-      verifyRequirement(requirement, output.results.find((r) => r.key === requirement.key), chunks));
+    const assessed = await checkSupport(items.map(({ requirement, chunks }) =>
+      verifyRequirement(requirement, output.results.find((r) => r.key === requirement.key), chunks)), geminiSupportJudge);
     const { score, ceiling } = computeScore(assessed);
 
     for (const item of assessed) {
@@ -186,6 +188,7 @@ async function assess(applicationId: string, options: { retry?: boolean }): Prom
         explanation: item.explanation,
         learning_suggestion: item.learningSuggestion,
         needs_review: item.needsReview,
+        review_reason: item.reviewReason,
         top_similarity: item.topSimilarity,
       }).select('id').single();
       if (saved.error) throw saved.error;

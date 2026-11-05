@@ -8,6 +8,13 @@ import {
   type FairnessActionResult,
 } from "@/lib/trust/fairness-action";
 
+const VERDICT_TEXT = {
+  passed: "Changing personal details did not meaningfully change the score.",
+  failed: "A personal detail changed the score. Review this applicant by hand.",
+  inconclusive:
+    "Inconclusive. The AI's scores varied too much between identical runs to tell, so review this applicant by hand.",
+};
+
 export function FairnessPanel({ applicationId }: { applicationId: string }) {
   const [result, setResult] = useState<FairnessActionResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -41,11 +48,9 @@ export function FairnessPanel({ applicationId }: { applicationId: string }) {
         {result?.ok && (
           <>
             <p
-              className={`mt-3 text-sm ${result.report.passed ? "text-mist" : "text-coral"}`}
+              className={`mt-3 text-sm ${result.report.verdict === "failed" ? "text-coral" : "text-mist"}`}
             >
-              {result.report.passed
-                ? "Changing personal details did not meaningfully change the score."
-                : "A personal detail changed the score. Review this applicant by hand."}
+              {VERDICT_TEXT[result.report.verdict]}
             </p>
             <div className="mt-2 overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -80,8 +85,8 @@ export function FairnessPanel({ applicationId }: { applicationId: string }) {
               </table>
             </div>
             <p className="mt-2 text-sm">
-              Changes of up to {result.report.tolerance} points count as normal
-              AI variation.
+              Scoring the same text twice differed by {result.report.noise}{" "}
+              point{result.report.noise === 1 ? "" : "s"}.
             </p>
           </>
         )}
